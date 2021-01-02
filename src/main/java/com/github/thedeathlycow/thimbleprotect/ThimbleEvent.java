@@ -34,33 +34,44 @@ public class ThimbleEvent {
         this.type = type;
         this.time = LocalDateTime.now();
         this.ID = this.generateID();
+
+        this.addToLog();
     }
 
     private int generateID() {
-        return 0;
+        return ThimbleEventLogger.MaxSavedEventID + ThimbleEventLogger.EventList.size();
     }
 
     public void addToLog() {
+
         ThimbleEventLogger.addEventToLog(this);
     }
 
     @Override
     public String toString() {
-        String stringified = this.ID + ": " + this.causingEntity.getName().asString();
+        String stringified = this.ID + ": ";
+        if (this.causingEntity != null) {
+            stringified += this.causingEntity.getName().asString();
+        } else {
+            stringified += "#entity";
+        }
+
         switch(this.type) {
             case BLOCK_BREAK:
-                stringified += " broke " + this.state.toString() + " at " + this.pos.toString();
+                stringified += " broke ";
                 break;
             case BLOCK_PLACE:
-                stringified += " placed " + this.state.toString() + " at " + this.pos.toString();
+                stringified += " placed ";
                 break;
             case EXPLOSION:
-                stringified += " blew up " + this.state.toString() + " at " + this.pos.toString();
+                stringified += " blew up ";
                 break;
             default:
                 stringified = "[ERROR]";
                 break;
         }
+
+        stringified += this.state.toString() + " at " + this.pos.toString();
         return stringified;
 
     }

@@ -24,7 +24,6 @@ public class BlockPlaceMixin {
             System.out.println(player.getDisplayName().asString() + " placed a " + state.getBlock().getTranslationKey()  + " at " + pos.getX() + ", " + pos.getY() + ", " + pos.getZ());
 
             ThimbleEvent event = new ThimbleEvent(state, player, pos, ThimbleEvent.ThimbleEventType.BLOCK_PLACE);
-            event.addToLog();
         }
     }
 }

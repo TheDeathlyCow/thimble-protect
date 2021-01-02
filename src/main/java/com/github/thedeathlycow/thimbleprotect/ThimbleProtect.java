@@ -9,6 +9,9 @@ import net.minecraft.text.Text;
 import static net.minecraft.server.command.CommandManager.literal;
 
 public class ThimbleProtect implements ModInitializer {
+
+    public static final String MODID = "thimble-protect";
+
     @Override
     public void onInitialize() {
         System.out.println("Initializing ThimbleProtect...");

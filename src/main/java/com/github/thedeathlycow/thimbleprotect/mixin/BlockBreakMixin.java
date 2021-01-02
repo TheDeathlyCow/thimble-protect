@@ -29,7 +29,7 @@ public abstract class BlockBreakMixin {
         }
 
         ThimbleEvent event = new ThimbleEvent(state, explosion.getCausingEntity(), pos, ThimbleEvent.ThimbleEventType.EXPLOSION);
-        event.addToLog();
+
         System.out.println(name + " blew up a " + state.getBlock().getTranslationKey() + " at " + pos.getX() + ", " + pos.getY() + ", " + pos.getZ());
 
     }
@@ -38,7 +38,7 @@ public abstract class BlockBreakMixin {
     public void onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player, CallbackInfo ci) {
         if (player != null) {
             ThimbleEvent event = new ThimbleEvent(state, player, pos, ThimbleEvent.ThimbleEventType.BLOCK_BREAK);
-            event.addToLog();
+
             System.out.println(player.getDisplayName().asString() + " broke a " + state.getBlock().getTranslationKey() + " at " + pos.getX() + ", " + pos.getY() + ", " + pos.getZ());
         }
     }
