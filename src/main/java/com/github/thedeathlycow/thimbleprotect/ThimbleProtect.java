@@ -11,10 +11,11 @@ import static net.minecraft.server.command.CommandManager.literal;
 public class ThimbleProtect implements ModInitializer {
     @Override
     public void onInitialize() {
-        System.out.println("Initializing ThimbleProtect!");
+        System.out.println("Initializing ThimbleProtect...");
 
         this.registerCommands();
-        
+
+        System.out.println("ThimbleProtect initialised!");
     }
 
     private void registerCommands() {
@@ -23,6 +24,18 @@ public class ThimbleProtect implements ModInitializer {
             dispatcher.register(literal("ping").executes(context -> {
                 final Text text = new LiteralText("pong!");
                 context.getSource().sendFeedback(text, true);
+                return 1;
+            }));
+        });
+
+        CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> {
+            dispatcher.register(literal("getCurrentLog").executes(context -> {
+                String message = "Last 1024 Thimble Events:";
+                for (ThimbleEvent event : ThimbleEventLogger.EventList) {
+                    message += "\n" + event;
+                }
+                final Text text = new LiteralText(message);
+                context.getSource().sendFeedback(text, false);
                 return 1;
             }));
         });

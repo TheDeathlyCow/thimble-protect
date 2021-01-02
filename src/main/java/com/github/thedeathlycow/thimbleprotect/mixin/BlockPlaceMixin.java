@@ -1,5 +1,6 @@
 package com.github.thedeathlycow.thimbleprotect.mixin;
 
+import com.github.thedeathlycow.thimbleprotect.ThimbleEvent;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.FireBlock;
 import net.minecraft.entity.player.PlayerEntity;
@@ -21,6 +22,9 @@ public class BlockPlaceMixin {
             PlayerEntity player = ctx.getPlayer();
             BlockPos pos = ctx.getBlockPos();
             System.out.println(player.getDisplayName().asString() + " placed a " + state.getBlock().getTranslationKey()  + " at " + pos.getX() + ", " + pos.getY() + ", " + pos.getZ());
+
+            ThimbleEvent event = new ThimbleEvent(state, player, pos, ThimbleEvent.ThimbleEventType.BLOCK_PLACE);
+            event.addToLog();
         }
     }
 }
