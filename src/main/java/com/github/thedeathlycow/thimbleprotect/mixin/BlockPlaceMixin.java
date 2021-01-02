@@ -20,8 +20,7 @@ public class BlockPlaceMixin {
             BlockState state = ctx.getWorld().getBlockState(ctx.getBlockPos());
             PlayerEntity player = ctx.getPlayer();
             BlockPos pos = ctx.getBlockPos();
-            System.out.println(player.getDisplayName().asString() + " placed a " + state.getBlock() + " at " + pos.getX() + ", " + pos.getY() + ", " + pos.getZ());
+            System.out.println(player.getDisplayName().asString() + " placed a " + state.getBlock().getTranslationKey()  + " at " + pos.getX() + ", " + pos.getY() + ", " + pos.getZ());
         }
-
     }
 }
