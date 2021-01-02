@@ -11,15 +11,16 @@ public class ThimbleEvent {
     public enum ThimbleEventType {
         BLOCK_BREAK,
         BLOCK_PLACE,
-        EXPLOSION
+        EXPLOSION,
+        CONTAINER_TRANSACTION
     }
 
-    private BlockState state;
-    private Entity causingEntity;
-    private BlockPos pos;
-    private int ID;
-    private LocalDateTime time;
-    private ThimbleEventType type;
+    public BlockState state;
+    public Entity causingEntity;
+    public BlockPos pos;
+    public int ID;
+    public LocalDateTime time;
+    public ThimbleEventType type;
 
     /**
      * Create a ThimbleEvent.

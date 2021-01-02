@@ -7,7 +7,7 @@ public class ThimbleEventLogger {
 
     public static int MaxSavedEventID = 0;
     public static final int MAX_SAVED_EVENTS = 1024;
-    static List<ThimbleEvent> EventList = new ArrayList<ThimbleEvent>(MAX_SAVED_EVENTS);
+    public static List<ThimbleEvent> EventList = new ArrayList<ThimbleEvent>(MAX_SAVED_EVENTS);
 
     public static void saveEventsToFile() {
         // TOOD: actually add this lol
