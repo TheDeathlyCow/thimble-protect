@@ -1,20 +1,20 @@
 {
   "schemaVersion": 1,
-  "id": "modid",
+  "id": "thimble-protect",
   "version": "${version}",
 
-  "name": "Example Mod",
-  "description": "This is an example description! Tell everyone what your mod is about!",
+  "name": "ThimbleProtect",
+  "description": "This mod logs block and chest interactions, and allows administrators to roll back changes.",
   "authors": [
-    "Me!"
+    "TheDeathlyCow"
   ],
   "contact": {
-    "homepage": "https://fabricmc.net/",
-    "sources": "https://github.com/FabricMC/fabric-example-mod"
+    "homepage": "https://github.com/TheDeathlyCow/",
+    "sources": "https://github.com/TheDeathlyCow/thimble-protect"
   },
 
   "license": "CC0-1.0",
-  "icon": "assets/modid/icon.png",
+  "icon": "assets/thimble-protect/icon.png",
 
   "environment": "*",
   "entrypoints": {
@@ -23,7 +23,7 @@
     ]
   },
   "mixins": [
-    "modid.mixins.json"
+    "thimble-protect.mixins.json"
   ],
 
   "depends": {

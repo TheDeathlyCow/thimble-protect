@@ -1,12 +1,13 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "net.fabricmc.example.mixin",
+  "package": "com.github.thedeathlycow.thimbleprotect.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
+    "BlockBreakMixin",
+    "BlockPlaceMixin"
   ],
   "client": [
-    "ExampleMixin"
   ],
   "injectors": {
     "defaultRequire": 1

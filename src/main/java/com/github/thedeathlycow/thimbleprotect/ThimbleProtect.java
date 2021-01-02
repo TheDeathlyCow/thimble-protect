@@ -12,15 +12,21 @@ public class ThimbleProtect implements ModInitializer {
     @Override
     public void onInitialize() {
         System.out.println("Initializing ThimbleProtect!");
-        CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> {
-            dispatcher.register(literal("foo").executes(context -> {
-                final Text text = new LiteralText("bar");
 
-                context.getSource().getMinecraftServer().getPlayerManager().broadcastChatMessage(text, MessageType.CHAT, context.getSource().getPlayer().getUuid());
-                return 1;
-            }));
-        });
+        this.registerCommands();
         
     }
 
+    private void registerCommands() {
+        System.out.println("Registering ThimbleProtect commands...");
+        CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> {
+            dispatcher.register(literal("ping").executes(context -> {
+                final Text text = new LiteralText("pong!");
+                context.getSource().sendFeedback(text, true);
+                return 1;
+            }));
+        });
+
+        System.out.println("ThimbleProtect commands registered!");
+    }
 }
