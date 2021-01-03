@@ -1,5 +1,8 @@
 package com.github.thedeathlycow.thimbleprotect;
 
+import com.github.thedeathlycow.thimbleprotect.events.ThimbleEvent;
+import net.minecraft.util.math.BlockPos;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,6 +35,10 @@ public class ThimbleEventLogger {
         ThimbleEventLogger.MaxSavedEventID = 0;
 
         return ThimbleEventLogger.MaxSavedEventID;
+    }
+
+    public static String getBlockPosShortString(BlockPos pos) {
+        return "" + pos.getX() + ", " + pos.getY() + ", " + pos.getZ();
     }
 
 
