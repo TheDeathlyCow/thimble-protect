@@ -1,19 +1,14 @@
 package com.github.thedeathlycow.thimbleprotect.mixin;
 
 import com.github.thedeathlycow.thimbleprotect.events.ThimbleBlockBreakEvent;
-import com.github.thedeathlycow.thimbleprotect.events.ThimbleBlockPlaceEvent;
 import com.github.thedeathlycow.thimbleprotect.events.ThimbleEvent;
 import com.github.thedeathlycow.thimbleprotect.events.ThimbleExplosionEvent;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.state.StateManager;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldAccess;
 import net.minecraft.world.explosion.Explosion;
-import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -23,7 +18,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(Block.class)
 public abstract class BlockBreakMixin {
 
-    @Shadow public abstract BlockState getDefaultState();
+    @Shadow
+    public abstract BlockState getDefaultState();
 
     @Inject(at = @At("HEAD"), method = "onDestroyedByExplosion")
     public void onDestroyedByExplosion(World world, BlockPos pos, Explosion explosion, CallbackInfo ci) {
@@ -31,11 +27,13 @@ public abstract class BlockBreakMixin {
         BlockState state = this.getDefaultState();
         String name = "#explosion";
 
+
         if (explosion.getCausingEntity() != null) {
             name = explosion.getCausingEntity().getName().getString();
         }
 
         ThimbleEvent event = new ThimbleExplosionEvent(explosion.getCausingEntity(), pos, state);
+
     }
 
     @Inject(at = @At("HEAD"), method = "onBreak")

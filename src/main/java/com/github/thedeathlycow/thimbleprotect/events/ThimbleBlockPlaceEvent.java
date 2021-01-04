@@ -9,12 +9,9 @@ import net.minecraft.world.World;
 
 public class ThimbleBlockPlaceEvent extends ThimbleEvent {
 
-    BlockState preState;
-    BlockState postState;
 
     /**
      * Create a ThimbleEvent.
-     *
      * @param causingEntity
      * @param pos
      * @param preState the state of the block before the current block was placed

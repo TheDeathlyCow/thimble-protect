@@ -24,21 +24,7 @@ public class ThimbleProtect implements ModInitializer {
 
     private void registerCommands() {
         System.out.println("Registering ThimbleProtect commands...");
-
-        CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> {
-            dispatcher.register(literal("thimble")
-                    .requires(source -> source.hasPermissionLevel(4))
-                    .then(literal("lookup")
-                            .then(argument("Lookup Count", IntegerArgumentType.integer(1))
-                                    .executes(ThimbleProtectCommand::lookup)))
-                    .then(literal("restore")
-                            .then(argument("Restore Count", IntegerArgumentType.integer(1))
-                                    .executes(ThimbleProtectCommand::restore)))
-                    .then(literal("revert")
-                            .then(argument("Revert Count", IntegerArgumentType.integer(1))
-                                    .executes(ThimbleProtectCommand::revert))));
-        });
-
+        ThimbleProtectCommand.registerCommand();
         System.out.println("ThimbleProtect commands registered!");
     }
 }

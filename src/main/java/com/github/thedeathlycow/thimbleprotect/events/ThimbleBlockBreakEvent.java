@@ -24,7 +24,8 @@ public class ThimbleBlockBreakEvent extends ThimbleEvent {
      */
     public ThimbleBlockBreakEvent(LivingEntity causingEntity, BlockPos pos, BlockState state) {
         super(causingEntity, pos);
-        this.state = state;
+        this.preState = state;
+        this.postState = Blocks.AIR.getDefaultState();
     }
 
     @Override
@@ -42,7 +43,7 @@ public class ThimbleBlockBreakEvent extends ThimbleEvent {
     public boolean restoreEvent(World world) {
         if (!this.restored) {
             world.setBlockState(this.pos, this.state);
-            this.state.getBlock().onPlaced(world, this.pos, this.state, this.causingEntity, null);
+//            this.state.getBlock().onPlaced(world, this.pos, this.state, this.causingEntity, null);
             this.restored = true;
             return true;
         } else {
