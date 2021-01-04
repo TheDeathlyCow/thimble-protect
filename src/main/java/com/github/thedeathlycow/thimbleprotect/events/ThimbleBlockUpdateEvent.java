@@ -17,15 +17,13 @@ public abstract class ThimbleBlockUpdateEvent extends ThimbleEvent {
     protected long tick;
     protected BlockState preState;
     protected BlockState postState;
-    protected DimensionType dimension;
 
     /**
      * Create a ThimbleBlockUpdateEvent with a causing entity.
      *
      */
     public ThimbleBlockUpdateEvent(Entity causingEntity, BlockPos pos, DimensionType dimension, long tick) {
-        super(causingEntity, pos, tick);
-        this.dimension = dimension;
+        super(causingEntity, pos, dimension, tick);
         this.time = LocalDateTime.now();
         this.restored = false;
     }
@@ -50,14 +48,18 @@ public abstract class ThimbleBlockUpdateEvent extends ThimbleEvent {
         }
     }
 
+    public boolean restoreEvent(World world, boolean deleteEvent) {
+        boolean restored = this.restoreEvent(world);
+        if (restored && deleteEvent) {
+            ThimbleEventLogger.EventList.remove(this);
+        }
+        return restored;
+    }
+
     @Override
     public abstract String toString();
 
     // * ====== START GETTER METHODS ====== * //
-
-    public DimensionType getDimension() {
-        return dimension;
-    }
 
     /**
      * Gets the state of the block after the event.

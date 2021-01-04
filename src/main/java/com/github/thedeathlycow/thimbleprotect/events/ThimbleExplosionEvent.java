@@ -53,7 +53,7 @@ public class ThimbleExplosionEvent extends ThimbleBlockUpdateEvent {
         stringified = this.tick + ", ";
 
         if (this.causingEntity != null) {
-            stringified += this.causingEntity.getDisplayName().asString();
+            stringified += this.causingEntity.getName().asString();
         } else {
             stringified += ThimbleBlockUpdateEvent.NULL_ENTITY_STRING;
         }

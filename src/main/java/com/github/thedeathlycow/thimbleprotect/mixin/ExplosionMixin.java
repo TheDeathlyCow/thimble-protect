@@ -37,7 +37,7 @@ public abstract class ExplosionMixin {
         for (BlockPos currPos : affectedBlockPositions) {
             BlockState currState = this.world.getBlockState(currPos);
             if (!currState.isAir()) {
-                ThimbleExplosionEvent event = new ThimbleExplosionEvent(this.entity, currPos, world.getTime(), currState);
+                ThimbleExplosionEvent event = new ThimbleExplosionEvent(this.entity, currPos, world.getDimension(), world.getTime(), currState);
                 event.addToLog();
             }
         }

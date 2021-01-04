@@ -4,6 +4,7 @@ import com.github.thedeathlycow.thimbleprotect.ThimbleEventLogger;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.dimension.DimensionType;
 
 import java.time.LocalDateTime;
 
@@ -14,13 +15,17 @@ public abstract class ThimbleEvent {
     protected long tick;
     protected int id;
     protected LocalDateTime time;
+    public boolean restored;
+    protected DimensionType dimension;
 
-    public ThimbleEvent(Entity causingEntity, BlockPos pos, long tick) {
+    public ThimbleEvent(Entity causingEntity, BlockPos pos, DimensionType dimension, long tick) {
         this.causingEntity = causingEntity;
         this.pos = pos;
+        this.dimension = dimension;
         this.tick = tick;
         this.id = generateID();
         this.time = LocalDateTime.now();
+        this.restored = false;
     }
 
     /**
@@ -34,20 +39,12 @@ public abstract class ThimbleEvent {
         ThimbleEventLogger.addEventToLog(this);
     }
 
-    public abstract boolean revertRestoration(World world);
-
-    public abstract boolean restoreEvent(World world);
-
-    public boolean restoreEvent(World world, boolean deleteEvent) {
-        boolean restored = this.restoreEvent(world);
-        if (restored && deleteEvent) {
-            ThimbleEventLogger.EventList.remove(this);
-        }
-        return restored;
-    }
-
 
     // * ====== START GETTER METHODS ====== * //
+
+    public DimensionType getDimension() {
+        return dimension;
+    }
 
     public BlockPos getPos() {
         return this.pos;

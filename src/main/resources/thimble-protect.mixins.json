@@ -4,8 +4,10 @@
   "package": "com.github.thedeathlycow.thimbleprotect.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
+    "AbstractBlockMixin",
     "BlockBreakMixin",
     "BlockPlaceMixin",
+    "ChestInteractMixin",
     "ExplosionMixin"
   ],
   "client": [
