@@ -1,5 +1,6 @@
 package com.github.thedeathlycow.thimbleprotect;
 
+import com.github.thedeathlycow.thimbleprotect.events.ThimbleBlockUpdateEvent;
 import com.github.thedeathlycow.thimbleprotect.events.ThimbleEvent;
 import net.minecraft.util.math.BlockPos;
 

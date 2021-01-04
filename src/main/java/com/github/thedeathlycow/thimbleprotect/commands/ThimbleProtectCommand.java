@@ -1,7 +1,7 @@
 package com.github.thedeathlycow.thimbleprotect.commands;
 
 import com.github.thedeathlycow.thimbleprotect.ThimbleEventLogger;
-import com.github.thedeathlycow.thimbleprotect.events.ThimbleEvent;
+import com.github.thedeathlycow.thimbleprotect.events.ThimbleBlockUpdateEvent;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -73,7 +73,7 @@ public class ThimbleProtectCommand {
         int restoreCount = context.getArgument("Restore Count", Integer.class);
         int restored = 0;
         for (int i = EventList.size() - 1; i >= 0 && restored < restoreCount; i--) {
-            ThimbleEvent currentEvent = EventList.get(i);
+            ThimbleBlockUpdateEvent currentEvent = EventList.get(i);
             if (!currentEvent.restored) {
                 restored++;
                 currentEvent.restoreEvent(world);
@@ -95,7 +95,7 @@ public class ThimbleProtectCommand {
         int revertCount = context.getArgument("Revert Count", Integer.class);
         int reverted = 0;
         for (int i = EventList.size() - 1; i >= 0 && reverted < revertCount; i--) {
-            ThimbleEvent currentEvent = EventList.get(i);
+            ThimbleBlockUpdateEvent currentEvent = EventList.get(i);
             if (currentEvent.restored) {
                 reverted++;
                 currentEvent.revertRestoration(world);

@@ -1,7 +1,7 @@
 package com.github.thedeathlycow.thimbleprotect.mixin;
 
 import com.github.thedeathlycow.thimbleprotect.events.ThimbleBlockBreakEvent;
-import com.github.thedeathlycow.thimbleprotect.events.ThimbleEvent;
+import com.github.thedeathlycow.thimbleprotect.events.ThimbleBlockUpdateEvent;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
@@ -18,7 +18,7 @@ public abstract class BlockBreakMixin {
     @Inject(at = @At("HEAD"), method = "onBreak")
     public void onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player, CallbackInfo ci) {
         if (player != null) {
-            ThimbleEvent event = new ThimbleBlockBreakEvent(player, pos, world.getTime(), state);
+            ThimbleBlockUpdateEvent event = new ThimbleBlockBreakEvent(player, pos, world.getDimension(), world.getTime(), state);
             event.addToLog();
         }
     }

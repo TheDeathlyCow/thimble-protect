@@ -1,7 +1,7 @@
 package com.github.thedeathlycow.thimbleprotect.mixin;
 
 import com.github.thedeathlycow.thimbleprotect.events.ThimbleBlockPlaceEvent;
-import com.github.thedeathlycow.thimbleprotect.events.ThimbleEvent;
+import com.github.thedeathlycow.thimbleprotect.events.ThimbleBlockUpdateEvent;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItem;
@@ -31,7 +31,7 @@ public abstract class BlockPlaceMixin {
             BlockPos pos = ctx.getBlockPos();
             World world = ctx.getWorld();
 
-            ThimbleEvent event = new ThimbleBlockPlaceEvent(player, pos, world.getTime(), preState, postState);
+            ThimbleBlockUpdateEvent event = new ThimbleBlockPlaceEvent(player, pos, world.getTime(), preState, postState);
             event.addToLog();
         }
     }
