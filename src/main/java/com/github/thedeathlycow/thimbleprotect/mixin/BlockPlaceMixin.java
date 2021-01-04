@@ -32,6 +32,7 @@ public abstract class BlockPlaceMixin {
             World world = ctx.getWorld();
 
             ThimbleEvent event = new ThimbleBlockPlaceEvent(player, pos, world.getTime(), preState, postState);
+            event.addToLog();
         }
     }
 }

@@ -2,6 +2,7 @@ package com.github.thedeathlycow.thimbleprotect.events;
 
 import com.github.thedeathlycow.thimbleprotect.ThimbleEventLogger;
 import net.minecraft.block.BlockState;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -10,9 +11,9 @@ import java.time.LocalDateTime;
 
 public abstract class ThimbleEvent {
 
-    public static final String NULL_ENTITY_STRING = "#null";
+    public static final String NULL_ENTITY_STRING = "#entity";
     public boolean restored;
-    protected LivingEntity causingEntity;
+    protected Entity causingEntity;
     protected BlockPos pos;
     protected int ID;
     protected LocalDateTime time;
@@ -26,7 +27,7 @@ public abstract class ThimbleEvent {
      * @param causingEntity
      * @param pos
      */
-    public ThimbleEvent(LivingEntity causingEntity, BlockPos pos, long tick) {
+    public ThimbleEvent(Entity causingEntity, BlockPos pos, long tick) {
         this(pos, tick);
         this.causingEntity = causingEntity;
     }
@@ -37,7 +38,7 @@ public abstract class ThimbleEvent {
         this.time = LocalDateTime.now();
         this.ID = this.generateID();
         this.restored = false;
-        this.addToLog();
+//        this.addToLog();
     }
 
     /**
@@ -54,6 +55,14 @@ public abstract class ThimbleEvent {
     public abstract boolean revertRestoration(World world);
 
     public abstract boolean restoreEvent(World world);
+
+    public boolean restoreEvent(World world, boolean deleteEvent) {
+        boolean restored = this.restoreEvent(world);
+        if (restored && deleteEvent) {
+            ThimbleEventLogger.EventList.remove(this);
+        }
+        return restored;
+    }
 
     @Override
     public abstract String toString();
@@ -90,7 +99,7 @@ public abstract class ThimbleEvent {
         return this.pos;
     }
 
-    public LivingEntity getCausingEntity() {
+    public Entity getCausingEntity() {
         return this.causingEntity;
     }
 
