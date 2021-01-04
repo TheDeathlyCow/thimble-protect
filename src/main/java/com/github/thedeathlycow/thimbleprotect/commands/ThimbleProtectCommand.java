@@ -75,9 +75,9 @@ public class ThimbleProtectCommand {
         int restored = 0;
         for (int i = EventList.size() - 1; i >= 0 && restored < restoreCount; i--) {
             ThimbleEvent currentEvent = EventList.get(i);
-            if (!currentEvent.restored) {
+            if (currentEvent instanceof ThimbleBlockUpdateEvent && !currentEvent.restored) {
                 restored++;
-                currentEvent.restoreEvent(world);
+                ((ThimbleBlockUpdateEvent) currentEvent).restoreEvent(world);
             }
         }
 
@@ -97,9 +97,9 @@ public class ThimbleProtectCommand {
         int reverted = 0;
         for (int i = EventList.size() - 1; i >= 0 && reverted < revertCount; i--) {
             ThimbleEvent currentEvent = EventList.get(i);
-            if (currentEvent.restored) {
+            if (currentEvent instanceof ThimbleBlockUpdateEvent && currentEvent.restored) {
                 reverted++;
-                currentEvent.revertRestoration(world);
+                ((ThimbleBlockUpdateEvent) currentEvent).revertRestoration(world);
             }
         }
 
