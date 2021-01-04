@@ -22,7 +22,7 @@ public abstract class BlockPlaceMixin {
     protected @Nullable
     abstract BlockState getPlacementState(ItemPlacementContext context);
 
-    @Inject(at = @At(value = "HEAD", target = "Lnet/minecraft/item/ItemPlacementContext;getBlockPos()Lnet/minecraft/util/math/BlockPos;"), method = "place")
+    @Inject(at = @At(value = "HEAD"), method = "place")
     public void place(ItemPlacementContext ctx, CallbackInfoReturnable<Boolean> info) {
         if (ctx.getPlayer() != null) {
             BlockState preState = ctx.getWorld().getBlockState(ctx.getBlockPos());

@@ -2,7 +2,9 @@ package com.github.thedeathlycow.thimbleprotect.commands;
 
 import com.github.thedeathlycow.thimbleprotect.ThimbleEventLogger;
 import com.github.thedeathlycow.thimbleprotect.events.ThimbleBlockUpdateEvent;
+import com.github.thedeathlycow.thimbleprotect.events.ThimbleChestInteractEvent;
 import com.github.thedeathlycow.thimbleprotect.events.ThimbleEvent;
+import com.github.thedeathlycow.thimbleprotect.events.ThimbleInteractEvent;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -52,7 +54,7 @@ public class ThimbleProtectCommand {
             try {
                 messageString += "\n" + EventList.get(i).toString();
                 lookedUp++;
-            } catch(Exception e) {
+            } catch (Exception e) {
                 System.out.println("Exception: " + Arrays.toString(e.getStackTrace()));
             }
         }
@@ -75,9 +77,8 @@ public class ThimbleProtectCommand {
         int restored = 0;
         for (int i = EventList.size() - 1; i >= 0 && restored < restoreCount; i--) {
             ThimbleEvent currentEvent = EventList.get(i);
-            if (currentEvent instanceof ThimbleBlockUpdateEvent && !currentEvent.restored) {
+            if (currentEvent.restoreEvent(world)) {
                 restored++;
-                ((ThimbleBlockUpdateEvent) currentEvent).restoreEvent(world);
             }
         }
 
@@ -97,9 +98,8 @@ public class ThimbleProtectCommand {
         int reverted = 0;
         for (int i = EventList.size() - 1; i >= 0 && reverted < revertCount; i--) {
             ThimbleEvent currentEvent = EventList.get(i);
-            if (currentEvent instanceof ThimbleBlockUpdateEvent && currentEvent.restored) {
+            if (currentEvent.revertRestoration(world)) {
                 reverted++;
-                ((ThimbleBlockUpdateEvent) currentEvent).revertRestoration(world);
             }
         }
 

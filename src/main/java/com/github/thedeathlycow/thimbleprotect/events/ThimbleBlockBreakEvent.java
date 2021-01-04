@@ -22,37 +22,14 @@ public class ThimbleBlockBreakEvent extends ThimbleBlockUpdateEvent {
         this.postState = Blocks.AIR.getDefaultState();
     }
 
-//    @Override
-//    public boolean revertRestoration(World world) {
-//        if (this.restored) {
-//            world.setBlockState(this.pos, Blocks.AIR.getDefaultState());
-//            this.restored = false;
-//            return true;
-//        } else {
-//            return false;
-//        }
-//    }
-//
-//    @Override
-//    public boolean restoreEvent(World world) {
-//        if (!this.restored && world.getDimension() == this.dimension) {
-//            world.setBlockState(this.pos, this.preState);
-////            this.state.getBlock().onPlaced(world, this.pos, this.state, this.causingEntity, null);
-//            this.restored = true;
-//            return true;
-//        } else {
-//            return false;
-//        }
-//    }
-
     @Override
     public String toString() {
         String stringified = "";
 
         if (this.restored)
-            stringified = "*";
+            stringified += "Restored: ";
 
-        stringified = this.tick + ", ";
+        stringified += this.tick + ", ";
 
         if (this.causingEntity != null) {
             stringified += this.causingEntity.getName().asString();

@@ -39,6 +39,17 @@ public abstract class ThimbleEvent {
         ThimbleEventLogger.addEventToLog(this);
     }
 
+    public abstract boolean revertRestoration(World world);
+    public abstract boolean restoreEvent(World world);
+
+    public boolean restoreEvent(World world, boolean deleteEvent) {
+        boolean couldRestore = this.restoreEvent(world);
+        if (couldRestore && deleteEvent) {
+            ThimbleEventLogger.EventList.remove(this);
+        }
+        return couldRestore;
+    }
+
 
     // * ====== START GETTER METHODS ====== * //
 

@@ -34,7 +34,7 @@ public abstract class ThimbleBlockUpdateEvent extends ThimbleEvent {
             this.restored = false;
             return true;
         } else {
-            return  false;
+            return false;
         }
     }
 
@@ -48,13 +48,7 @@ public abstract class ThimbleBlockUpdateEvent extends ThimbleEvent {
         }
     }
 
-    public boolean restoreEvent(World world, boolean deleteEvent) {
-        boolean restored = this.restoreEvent(world);
-        if (restored && deleteEvent) {
-            ThimbleEventLogger.EventList.remove(this);
-        }
-        return restored;
-    }
+
 
     @Override
     public abstract String toString();
