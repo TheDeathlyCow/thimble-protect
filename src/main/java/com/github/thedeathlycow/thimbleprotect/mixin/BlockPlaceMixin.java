@@ -7,6 +7,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -17,7 +18,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(BlockItem.class)
 public abstract class BlockPlaceMixin {
 
-    @Shadow protected @Nullable abstract BlockState getPlacementState(ItemPlacementContext context);
+    @Shadow
+    protected @Nullable
+    abstract BlockState getPlacementState(ItemPlacementContext context);
 
     @Inject(at = @At(value = "HEAD", target = "Lnet/minecraft/item/ItemPlacementContext;getBlockPos()Lnet/minecraft/util/math/BlockPos;"), method = "place")
     public void place(ItemPlacementContext ctx, CallbackInfoReturnable<Boolean> info) {
@@ -26,8 +29,9 @@ public abstract class BlockPlaceMixin {
             BlockState postState = this.getPlacementState(ctx);
             PlayerEntity player = ctx.getPlayer();
             BlockPos pos = ctx.getBlockPos();
+            World world = ctx.getWorld();
 
-            ThimbleEvent event = new ThimbleBlockPlaceEvent(player, pos, preState, postState);
+            ThimbleEvent event = new ThimbleBlockPlaceEvent(player, pos, world.getTime(), preState, postState);
         }
     }
 }

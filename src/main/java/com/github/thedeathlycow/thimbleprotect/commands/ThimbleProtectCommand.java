@@ -11,6 +11,8 @@ import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.world.World;
 
+import java.util.Arrays;
+
 import static com.github.thedeathlycow.thimbleprotect.ThimbleEventLogger.EventList;
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
@@ -44,10 +46,16 @@ public class ThimbleProtectCommand {
         String messageString = "The last %d event(s) were: ";
         int lookUpCount = context.getArgument("Lookup Count", Integer.class);
         int lookedUp = 0;
+
         for (int i = EventList.size() - 1; i >= 0 && lookedUp < lookUpCount; i--) {
-            messageString += "\n" + EventList.get(i).toString();
-            lookedUp++;
+            try {
+                messageString += "\n" + EventList.get(i).toString();
+                lookedUp++;
+            } catch(Exception e) {
+                System.out.println("Exception: " + Arrays.toString(e.getStackTrace()));
+            }
         }
+
 
         Text text = new LiteralText(String.format(messageString, lookedUp));
         context.getSource().sendFeedback(text, false);

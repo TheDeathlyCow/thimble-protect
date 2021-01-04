@@ -2,7 +2,6 @@ package com.github.thedeathlycow.thimbleprotect.events;
 
 import com.github.thedeathlycow.thimbleprotect.ThimbleEventLogger;
 import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -11,25 +10,28 @@ import java.time.LocalDateTime;
 
 public abstract class ThimbleEvent {
 
-    private LivingEntity causingEntity;
-    private BlockPos pos;
-    private int ID;
-    private LocalDateTime time;
-    private long tick;
-    public boolean restored;
-
-    private BlockState preState;
-    private BlockState postState;
-
     public static final String NULL_ENTITY_STRING = "#null";
+    public boolean restored;
+    protected LivingEntity causingEntity;
+    protected BlockPos pos;
+    protected int ID;
+    protected LocalDateTime time;
+    protected long tick;
+    protected BlockState preState;
+    protected BlockState postState;
 
     /**
-     * Create a ThimbleEvent.
+     * Create a ThimbleEvent with a causing entity.
+     *
      * @param causingEntity
      * @param pos
      */
     public ThimbleEvent(LivingEntity causingEntity, BlockPos pos, long tick) {
+        this(pos, tick);
         this.causingEntity = causingEntity;
+    }
+
+    public ThimbleEvent(BlockPos pos, long tick) {
         this.pos = pos;
         this.tick = tick;
         this.time = LocalDateTime.now();

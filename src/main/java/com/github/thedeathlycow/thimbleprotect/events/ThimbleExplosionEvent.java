@@ -2,7 +2,6 @@ package com.github.thedeathlycow.thimbleprotect.events;
 
 import com.github.thedeathlycow.thimbleprotect.ThimbleEventLogger;
 import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.math.BlockPos;
 
@@ -14,8 +13,8 @@ public class ThimbleExplosionEvent extends ThimbleBlockBreakEvent {
      * @param causingEntity
      * @param pos
      */
-    public ThimbleExplosionEvent(LivingEntity causingEntity, BlockPos pos, BlockState state) {
-        super(causingEntity, pos, state);
+    public ThimbleExplosionEvent(LivingEntity causingEntity, BlockPos pos, long tick, BlockState state) {
+        super(causingEntity, pos, tick, state);
     }
 
     @Override
@@ -25,7 +24,7 @@ public class ThimbleExplosionEvent extends ThimbleBlockBreakEvent {
         if (this.restored)
             stringified = "*";
 
-        stringified = this.ID + ", ";
+        stringified = this.tick + ", ";
 
         if (this.causingEntity != null) {
             stringified += this.causingEntity.getName().asString();
@@ -34,7 +33,7 @@ public class ThimbleExplosionEvent extends ThimbleBlockBreakEvent {
         }
 
         String posString = ThimbleEventLogger.getBlockPosShortString(this.pos);
-        stringified += " blew up " + this.state.getBlock().getTranslationKey() + " at " + posString;
+        stringified += " blew up " + this.preState.getBlock().getTranslationKey() + " at " + posString;
 
         return stringified;
     }
