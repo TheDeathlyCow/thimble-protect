@@ -1,12 +1,15 @@
 package com.github.thedeathlycow.thimbleprotect.events;
 
 import com.github.thedeathlycow.thimbleprotect.ThimbleEventLogger;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 
+import java.io.FileWriter;
 import java.time.LocalDateTime;
 
 public abstract class ThimbleBlockUpdateEvent extends ThimbleEvent {
@@ -47,8 +50,6 @@ public abstract class ThimbleBlockUpdateEvent extends ThimbleEvent {
             return false;
         }
     }
-
-
 
     @Override
     public abstract String toString();

@@ -20,12 +20,9 @@ public class ThimbleEventLogger {
 
     public static void addEventToLog(ThimbleEvent event) {
 
-        ThimbleEventLogger.EventList.add(event);
 
-        if (ThimbleEventLogger.EventList.size() >= 1023) {
-            ThimbleEventLogger.updateMaxSavedID();
-            ThimbleEventLogger.saveEventsToFile();
-        }
+
+
     }
 
     /**

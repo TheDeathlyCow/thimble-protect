@@ -1,10 +1,7 @@
 package com.github.thedeathlycow.thimbleprotect.commands;
 
 import com.github.thedeathlycow.thimbleprotect.ThimbleEventLogger;
-import com.github.thedeathlycow.thimbleprotect.events.ThimbleBlockUpdateEvent;
-import com.github.thedeathlycow.thimbleprotect.events.ThimbleChestInteractEvent;
 import com.github.thedeathlycow.thimbleprotect.events.ThimbleEvent;
-import com.github.thedeathlycow.thimbleprotect.events.ThimbleInteractEvent;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;

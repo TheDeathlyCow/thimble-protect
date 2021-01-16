@@ -1,21 +1,24 @@
 package com.github.thedeathlycow.thimbleprotect.events;
 
 import com.github.thedeathlycow.thimbleprotect.ThimbleEventLogger;
+import com.google.gson.*;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 
+import java.io.FileWriter;
+import java.lang.reflect.Type;
 import java.time.LocalDateTime;
 
 public abstract class ThimbleEvent {
 
+    public boolean restored;
     protected Entity causingEntity;
     protected BlockPos pos;
     protected long tick;
     protected int id;
     protected LocalDateTime time;
-    public boolean restored;
     protected DimensionType dimension;
 
     public ThimbleEvent(Entity causingEntity, BlockPos pos, DimensionType dimension, long tick) {
@@ -36,10 +39,30 @@ public abstract class ThimbleEvent {
     }
 
     public void addToLog() {
-        ThimbleEventLogger.addEventToLog(this);
+        try {
+            int posX = this.getPos().getX();
+            int posY = this.getPos().getY();
+            int posZ = this.getPos().getZ();
+
+            FileWriter outFile = new FileWriter("thimble/events/" + posX + "." + posY + "." + posZ + ".json");
+            GsonBuilder gsonBuilder = new GsonBuilder()
+                    .setPrettyPrinting()
+                    .disableHtmlEscaping()
+                    .registerTypeHierarchyAdapter(ThimbleEvent.class, new ThimbleEventSerializer());
+            Gson eventGson = gsonBuilder.create();
+
+            String serialised = eventGson.toJson(this);
+            System.out.println("Wrote: " + serialised);
+            outFile.write(serialised);
+            outFile.close();
+        } catch (Exception e) {
+            System.out.println("Error writing ThimbleEvent to file: " + e);
+//            e.printStackTrace();
+        }
     }
 
     public abstract boolean revertRestoration(World world);
+
     public abstract boolean restoreEvent(World world);
 
     public boolean restoreEvent(World world, boolean deleteEvent) {
