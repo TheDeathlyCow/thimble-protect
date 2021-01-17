@@ -1,6 +1,5 @@
 package com.github.thedeathlycow.thimbleprotect.events;
 
-import com.github.thedeathlycow.thimbleprotect.ThimbleEventLogger;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.minecraft.block.BlockState;
@@ -10,7 +9,6 @@ import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 
 import java.io.FileWriter;
-import java.time.LocalDateTime;
 
 public class ThimbleBlockUpdateEvent extends ThimbleEvent {
 
@@ -64,7 +62,7 @@ public class ThimbleBlockUpdateEvent extends ThimbleEvent {
             GsonBuilder gsonBuilder = new GsonBuilder()
                     .setPrettyPrinting()
                     .disableHtmlEscaping()
-                    .registerTypeHierarchyAdapter(ThimbleEvent.class, new ThimbleEventSerializer());
+                    .registerTypeHierarchyAdapter(ThimbleEvent.class, new ThimbleBlockUpdateEventSerializer());
             Gson eventGson = gsonBuilder.create();
 
             String serialised = eventGson.toJson(this);
@@ -73,7 +71,6 @@ public class ThimbleBlockUpdateEvent extends ThimbleEvent {
             outFile.close();
         } catch (Exception e) {
             System.out.println("Error writing ThimbleEvent to file: " + e);
-//            e.printStackTrace();
         }
     }
 

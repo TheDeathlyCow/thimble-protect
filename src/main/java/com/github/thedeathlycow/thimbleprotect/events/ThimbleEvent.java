@@ -8,8 +8,6 @@ import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 
 import java.io.FileWriter;
-import java.lang.reflect.Type;
-import java.time.LocalDateTime;
 
 public abstract class ThimbleEvent {
 
@@ -44,26 +42,26 @@ public abstract class ThimbleEvent {
     }
 
     public void addToLog() {
-        try {
-            int posX = this.getPos().getX();
-            int posY = this.getPos().getY();
-            int posZ = this.getPos().getZ();
-
-            FileWriter outFile = new FileWriter("thimble/events/" + posX + "." + posY + "." + posZ + ".json");
-            GsonBuilder gsonBuilder = new GsonBuilder()
-                    .setPrettyPrinting()
-                    .disableHtmlEscaping()
-                    .registerTypeHierarchyAdapter(ThimbleEvent.class, new ThimbleEventSerializer());
-            Gson eventGson = gsonBuilder.create();
-
-            String serialised = eventGson.toJson(this);
-            System.out.println("Wrote: " + serialised);
-            outFile.write(serialised);
-            outFile.close();
-        } catch (Exception e) {
-            System.out.println("Error writing ThimbleEvent to file: " + e);
-//            e.printStackTrace();
-        }
+//        try {
+//            int posX = this.getPos().getX();
+//            int posY = this.getPos().getY();
+//            int posZ = this.getPos().getZ();
+//
+//            FileWriter outFile = new FileWriter("thimble/events/" + posX + "." + posY + "." + posZ + ".json");
+//            GsonBuilder gsonBuilder = new GsonBuilder()
+//                    .setPrettyPrinting()
+//                    .disableHtmlEscaping()
+//                    .registerTypeHierarchyAdapter(ThimbleEvent.class, new ThimbleBlockUpdateEventSerializer());
+//            Gson eventGson = gsonBuilder.create();
+//
+//            String serialised = eventGson.toJson(this);
+//            System.out.println("Wrote: " + serialised);
+//            outFile.write(serialised);
+//            outFile.close();
+//        } catch (Exception e) {
+//            System.out.println("Error writing ThimbleEvent to file: " + e);
+////            e.printStackTrace();
+//        }
     }
 
     public abstract boolean restore(World world);

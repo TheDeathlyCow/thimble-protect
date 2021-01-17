@@ -28,10 +28,10 @@ public class ThimbleProtectCommand {
                                     .executes(ThimbleProtectCommand::lookup)))
                     .then(literal("rollback")
                             .then(argument("Restore Count", IntegerArgumentType.integer(1))
-                                    .executes(ThimbleProtectCommand::restore)))
+                                    .executes(ThimbleProtectCommand::rollback)))
                     .then(literal("restore")
                             .then(argument("Revert Count", IntegerArgumentType.integer(1))
-                                    .executes(ThimbleProtectCommand::revert)))
+                                    .executes(ThimbleProtectCommand::restore)))
                     .then(literal("clearEvents")
                             .executes(ThimbleProtectCommand::clearEvents)));
         });
@@ -62,15 +62,15 @@ public class ThimbleProtectCommand {
         return 1;
     }
 
-    public static int restore(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+    public static int rollback(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
 
         if (EventList.isEmpty()) {
-            context.getSource().sendFeedback(new LiteralText("No events to restore!"), false);
+            context.getSource().sendFeedback(new LiteralText("No events to rollback!"), false);
             return -1;
         }
 
         World world = context.getSource().getWorld();
-        int restoreCount = context.getArgument("Restore Count", Integer.class);
+        int restoreCount = context.getArgument("Rollback Count", Integer.class);
         int restored = 0;
         for (int i = EventList.size() - 1; i >= 0 && restored < restoreCount; i--) {
             ThimbleEvent currentEvent = EventList.get(i);
@@ -79,19 +79,19 @@ public class ThimbleProtectCommand {
             }
         }
 
-        context.getSource().sendFeedback(new LiteralText("Restored last " + restored + " event(s)!"), false);
+        context.getSource().sendFeedback(new LiteralText("Rolled back last " + restored + " event(s)!"), false);
         return 1;
     }
 
-    public static int revert(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+    public static int restore(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
 
         if (EventList.isEmpty()) {
-            context.getSource().sendFeedback(new LiteralText("No events to revert!"), false);
+            context.getSource().sendFeedback(new LiteralText("No events to restore!"), false);
             return -1;
         }
 
         World world = context.getSource().getWorld();
-        int revertCount = context.getArgument("Revert Count", Integer.class);
+        int revertCount = context.getArgument("Restore Count", Integer.class);
         int reverted = 0;
         for (int i = EventList.size() - 1; i >= 0 && reverted < revertCount; i--) {
             ThimbleEvent currentEvent = EventList.get(i);
@@ -100,7 +100,7 @@ public class ThimbleProtectCommand {
             }
         }
 
-        context.getSource().sendFeedback(new LiteralText("Reverted last " + reverted + " restored event(s)!"), false);
+        context.getSource().sendFeedback(new LiteralText("Restored last " + reverted + " rolled back event(s)!"), false);
         return 1;
     }
 
