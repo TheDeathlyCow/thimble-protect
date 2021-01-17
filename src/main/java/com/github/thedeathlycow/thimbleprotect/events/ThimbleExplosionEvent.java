@@ -15,8 +15,8 @@ public class ThimbleExplosionEvent extends ThimbleBlockUpdateEvent {
      * @param causingEntity
      * @param pos
      */
-    public ThimbleExplosionEvent(Entity causingEntity, BlockPos pos, DimensionType dimension, long tick, BlockState state) {
-        super(causingEntity, pos, dimension, tick);
+    public ThimbleExplosionEvent(Entity causingEntity, BlockPos pos, DimensionType dimension, long time, BlockState state) {
+        super(causingEntity, pos, dimension, time);
         this.preState = state;
         this.postState = Blocks.AIR.getDefaultState();
     }
@@ -28,7 +28,7 @@ public class ThimbleExplosionEvent extends ThimbleBlockUpdateEvent {
         if (this.restored)
             stringified += "Restored: ";
 
-        stringified += this.tick + ", ";
+        stringified += this.time + ", ";
 
         if (this.causingEntity != null) {
             stringified += this.causingEntity.getName().asString();

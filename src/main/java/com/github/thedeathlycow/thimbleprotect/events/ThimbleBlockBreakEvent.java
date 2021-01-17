@@ -16,8 +16,8 @@ public class ThimbleBlockBreakEvent extends ThimbleBlockUpdateEvent {
      * @param pos           the position that the block was broken at
      * @param state         block state of block that was broken
      */
-    public ThimbleBlockBreakEvent(LivingEntity causingEntity, BlockPos pos, DimensionType dimension, long tick, BlockState state) {
-        super(causingEntity, pos, dimension, tick);
+    public ThimbleBlockBreakEvent(LivingEntity causingEntity, BlockPos pos, DimensionType dimension, long time, BlockState state) {
+        super(causingEntity, pos, dimension, time);
         this.preState = state;
         this.postState = Blocks.AIR.getDefaultState();
     }
@@ -29,7 +29,7 @@ public class ThimbleBlockBreakEvent extends ThimbleBlockUpdateEvent {
         if (this.restored)
             stringified += "Restored: ";
 
-        stringified += this.tick + ", ";
+        stringified += this.time + ", ";
 
         if (this.causingEntity != null) {
             stringified += this.causingEntity.getName().asString();

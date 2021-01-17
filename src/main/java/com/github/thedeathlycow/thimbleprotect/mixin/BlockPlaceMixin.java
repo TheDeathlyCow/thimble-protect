@@ -15,6 +15,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.time.Instant;
+
 @Mixin(BlockItem.class)
 public abstract class BlockPlaceMixin {
 
@@ -31,7 +33,7 @@ public abstract class BlockPlaceMixin {
             BlockPos pos = ctx.getBlockPos();
             World world = ctx.getWorld();
 
-            ThimbleBlockUpdateEvent event = new ThimbleBlockPlaceEvent(player, pos, world.getDimension(), world.getTime(), preState, postState);
+            ThimbleBlockUpdateEvent event = new ThimbleBlockPlaceEvent(player, pos, world.getDimension(), Instant.now().getEpochSecond(), preState, postState);
             event.addToLog();
         }
     }

@@ -14,6 +14,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.time.Instant;
 import java.util.List;
 
 @Mixin(Explosion.class)
@@ -37,7 +38,7 @@ public abstract class ExplosionMixin {
         for (BlockPos currPos : affectedBlockPositions) {
             BlockState currState = this.world.getBlockState(currPos);
             if (!currState.isAir()) {
-                ThimbleExplosionEvent event = new ThimbleExplosionEvent(this.entity, currPos, world.getDimension(), world.getTime(), currState);
+                ThimbleExplosionEvent event = new ThimbleExplosionEvent(this.entity, currPos, world.getDimension(), Instant.now().getEpochSecond(), currState);
                 event.addToLog();
             }
         }

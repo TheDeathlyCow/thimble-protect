@@ -13,8 +13,8 @@ public class ThimbleInteractEvent extends ThimbleEvent {
     DimensionType dimension;
     Block block;
 
-    public ThimbleInteractEvent(Entity causingEntity, BlockPos pos, DimensionType dimension, long tick) {
-        super(causingEntity, pos, dimension, tick);
+    public ThimbleInteractEvent(Entity causingEntity, BlockPos pos, DimensionType dimension, long time) {
+        super(causingEntity, pos, dimension, time);
         this.dimension = dimension;
     }
 

@@ -16,18 +16,16 @@ public abstract class ThimbleEvent {
     public boolean restored;
     protected Entity causingEntity;
     protected BlockPos pos;
-    protected long tick;
     protected int id;
-    protected LocalDateTime time;
+    protected long time;
     protected DimensionType dimension;
 
-    public ThimbleEvent(Entity causingEntity, BlockPos pos, DimensionType dimension, long tick) {
+    public ThimbleEvent(Entity causingEntity, BlockPos pos, DimensionType dimension, long time) {
         this.causingEntity = causingEntity;
         this.pos = pos;
         this.dimension = dimension;
-        this.tick = tick;
         this.id = generateID();
-        this.time = LocalDateTime.now();
+        this.time = time;
         this.restored = false;
     }
 
@@ -89,18 +87,10 @@ public abstract class ThimbleEvent {
     }
 
     /**
-     * Returns the tick this event occured at.
-     * Use #getTime() to get the date and time this event occured at instead.
+     * Returns the UNIX timestamp this event occured at
      */
-    public long getTick() {
-        return this.tick;
-    }
-
-    /**
-     * Returns the date and time this event occured at.
-     * Use #getTick() to get the tick this event occured at instead.
-     */
-    public LocalDateTime getTime() {
+    public long getTime() {
         return this.time;
     }
+
 }

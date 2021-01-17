@@ -12,12 +12,10 @@ import net.minecraft.world.dimension.DimensionType;
 import java.io.FileWriter;
 import java.time.LocalDateTime;
 
-public abstract class ThimbleBlockUpdateEvent extends ThimbleEvent {
+public class ThimbleBlockUpdateEvent extends ThimbleEvent {
 
     public static final String NULL_ENTITY_STRING = "#entity";
     public boolean restored;
-    protected LocalDateTime time;
-    protected long tick;
     protected BlockState preState;
     protected BlockState postState;
 
@@ -25,10 +23,8 @@ public abstract class ThimbleBlockUpdateEvent extends ThimbleEvent {
      * Create a ThimbleBlockUpdateEvent with a causing entity.
      *
      */
-    public ThimbleBlockUpdateEvent(Entity causingEntity, BlockPos pos, DimensionType dimension, long tick) {
-        super(causingEntity, pos, dimension, tick);
-        this.time = LocalDateTime.now();
-        this.restored = false;
+    public ThimbleBlockUpdateEvent(Entity causingEntity, BlockPos pos, DimensionType dimension, long time) {
+        super(causingEntity, pos, dimension, time);
     }
 
     public boolean revertRestoration(World world) {
@@ -51,8 +47,33 @@ public abstract class ThimbleBlockUpdateEvent extends ThimbleEvent {
         }
     }
 
+    public void addToLog() {
+        try {
+            int posX = this.getPos().getX();
+            int posY = this.getPos().getY();
+            int posZ = this.getPos().getZ();
+
+            FileWriter outFile = new FileWriter("thimble/events/" + posX + "." + posY + "." + posZ + ".json");
+            GsonBuilder gsonBuilder = new GsonBuilder()
+                    .setPrettyPrinting()
+                    .disableHtmlEscaping()
+                    .registerTypeHierarchyAdapter(ThimbleEvent.class, new ThimbleEventSerializer());
+            Gson eventGson = gsonBuilder.create();
+
+            String serialised = eventGson.toJson(this);
+            System.out.println("Wrote: " + serialised);
+            outFile.write(serialised);
+            outFile.close();
+        } catch (Exception e) {
+            System.out.println("Error writing ThimbleEvent to file: " + e);
+//            e.printStackTrace();
+        }
+    }
+
     @Override
-    public abstract String toString();
+    public String toString() {
+        return "";
+    }
 
     // * ====== START GETTER METHODS ====== * //
 
