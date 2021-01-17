@@ -5,6 +5,8 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.google.gson.reflect.TypeToken;
 
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -15,6 +17,7 @@ public class ThimbleBlockUpdateEventSerializer implements JsonSerializer<Thimble
 
     @Override
     public JsonElement serialize(ThimbleBlockUpdateEvent event, Type typeOfSrc, JsonSerializationContext context) {
+
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("causingEntity", event.getCausingEntity().getUuidAsString());
         map.put("time", event.getTime());

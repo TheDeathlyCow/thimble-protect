@@ -8,7 +8,10 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 
+import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 public class ThimbleBlockUpdateEvent extends ThimbleEvent {
 
@@ -16,6 +19,8 @@ public class ThimbleBlockUpdateEvent extends ThimbleEvent {
     protected BlockState preState;
     protected BlockState postState;
     protected ThimbleSubType subType;
+
+    public static final String BASE_FILE_PATH = "thimble/events/";
 
     public enum ThimbleSubType {
         BLOCK_PLACE,
@@ -53,25 +58,52 @@ public class ThimbleBlockUpdateEvent extends ThimbleEvent {
     }
 
     public void addToLog() {
+
+        FileWriter fileWriter = null;
+        String serialised = "";
         try {
             int posX = this.getPos().getX();
             int posY = this.getPos().getY();
             int posZ = this.getPos().getZ();
 
-            FileWriter outFile = new FileWriter("thimble/events/" + posX + "." + posY + "." + posZ + ".json");
+            String parentFilepath = this.genParentDirectory();
+            String filename = parentFilepath + posX + "." + posY + "." + posZ + ".json";
+
+            fileWriter = new FileWriter(filename);
+
             GsonBuilder gsonBuilder = new GsonBuilder()
                     .setPrettyPrinting()
                     .disableHtmlEscaping()
                     .registerTypeHierarchyAdapter(ThimbleEvent.class, new ThimbleBlockUpdateEventSerializer());
             Gson eventGson = gsonBuilder.create();
+            serialised = eventGson.toJson(this);
+            fileWriter.write(serialised);
 
-            String serialised = eventGson.toJson(this);
-            System.out.println("Wrote: " + serialised);
-            outFile.write(serialised);
-            outFile.close();
-        } catch (Exception e) {
+            fileWriter.close();
+        } catch (IOException e) {
             System.out.println("Error writing ThimbleEvent to file: " + e);
+        } finally {
+            System.out.println("Wrote: " + serialised);
         }
+    }
+
+    private String genParentDirectory() {
+        int posX = this.getPos().getX();
+        int posZ = this.getPos().getZ();
+
+        String regionFilename = BASE_FILE_PATH + "r" + posX / 512 + "," + posZ / 512;
+        String chunkFilename = "c" + posX / 16 + "," + posZ / 16;
+
+        File regionFile = new File(regionFilename);
+        if (regionFile.mkdir()) {
+            System.out.println("Created new region directory: " + regionFilename);
+        }
+        File chunkFile = new File(regionFilename + "/" + chunkFilename + "/");
+        if (chunkFile.mkdir()) {
+            System.out.println("Created new region directory: " + chunkFilename + "/");
+        }
+
+        return regionFilename + "/" + chunkFilename + "/";
     }
 
     @Override
