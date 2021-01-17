@@ -26,10 +26,10 @@ public class ThimbleProtectCommand {
                     .then(literal("lookup")
                             .then(argument("Lookup Count", IntegerArgumentType.integer(1))
                                     .executes(ThimbleProtectCommand::lookup)))
-                    .then(literal("restore")
+                    .then(literal("rollback")
                             .then(argument("Restore Count", IntegerArgumentType.integer(1))
                                     .executes(ThimbleProtectCommand::restore)))
-                    .then(literal("revert")
+                    .then(literal("restore")
                             .then(argument("Revert Count", IntegerArgumentType.integer(1))
                                     .executes(ThimbleProtectCommand::revert)))
                     .then(literal("clearEvents")
@@ -74,7 +74,7 @@ public class ThimbleProtectCommand {
         int restored = 0;
         for (int i = EventList.size() - 1; i >= 0 && restored < restoreCount; i--) {
             ThimbleEvent currentEvent = EventList.get(i);
-            if (currentEvent.restoreEvent(world)) {
+            if (currentEvent.rollback(world)) {
                 restored++;
             }
         }
@@ -95,7 +95,7 @@ public class ThimbleProtectCommand {
         int reverted = 0;
         for (int i = EventList.size() - 1; i >= 0 && reverted < revertCount; i--) {
             ThimbleEvent currentEvent = EventList.get(i);
-            if (currentEvent.revertRestoration(world)) {
+            if (currentEvent.restore(world)) {
                 reverted++;
             }
         }

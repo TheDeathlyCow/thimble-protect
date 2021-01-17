@@ -1,8 +1,6 @@
 package com.github.thedeathlycow.thimbleprotect.events;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -14,7 +12,7 @@ public class ThimbleInteractEvent extends ThimbleEvent {
     Block block;
 
     public ThimbleInteractEvent(Entity causingEntity, BlockPos pos, DimensionType dimension, long time) {
-        super(causingEntity, pos, dimension, time);
+        super(causingEntity, pos, dimension, time, ThimbleType.INTERACT);
         this.dimension = dimension;
     }
 
@@ -29,21 +27,23 @@ public class ThimbleInteractEvent extends ThimbleEvent {
 
     /**
      * Standard interaction events have nothing to restore!
+     *
      * @return false
      */
     @Override
-    public boolean revertRestoration(World world) {
-        this.restored = false;
+    public boolean restore(World world) {
+        this.rollbedBack = false;
         return false;
     }
 
     /**
      * Standard interaction events have nothing to restore!
+     *
      * @return false
      */
     @Override
-    public boolean restoreEvent(World world) {
-        this.restored = true;
+    public boolean rollback(World world) {
+        this.rollbedBack = true;
         return false;
     }
 }

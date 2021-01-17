@@ -15,32 +15,39 @@ import java.time.LocalDateTime;
 public class ThimbleBlockUpdateEvent extends ThimbleEvent {
 
     public static final String NULL_ENTITY_STRING = "#entity";
-    public boolean restored;
     protected BlockState preState;
     protected BlockState postState;
+    protected ThimbleSubType subType;
+
+    public enum ThimbleSubType {
+        BLOCK_PLACE,
+        BLOCK_BREAK,
+        EXPLOSION
+    }
 
     /**
      * Create a ThimbleBlockUpdateEvent with a causing entity.
      *
      */
-    public ThimbleBlockUpdateEvent(Entity causingEntity, BlockPos pos, DimensionType dimension, long time) {
-        super(causingEntity, pos, dimension, time);
+    public ThimbleBlockUpdateEvent(Entity causingEntity, BlockPos pos, DimensionType dimension, long time, ThimbleSubType subtype) {
+        super(causingEntity, pos, dimension, time, ThimbleType.BLOCK_UPDATE);
+        this.subType = subtype;
     }
 
-    public boolean revertRestoration(World world) {
-        if (this.restored) {
+    public boolean restore(World world) {
+        if (this.rollbedBack) {
             world.setBlockState(this.pos, this.postState);
-            this.restored = false;
+            this.rollbedBack = false;
             return true;
         } else {
             return false;
         }
     }
 
-    public boolean restoreEvent(World world) {
-        if (!this.restored && world.getDimension() == this.dimension) {
+    public boolean rollback(World world) {
+        if (!this.rollbedBack && world.getDimension() == this.dimension) {
             world.setBlockState(this.pos, this.preState);
-            this.restored = true;
+            this.rollbedBack = true;
             return true;
         } else {
             return false;
@@ -89,6 +96,10 @@ public class ThimbleBlockUpdateEvent extends ThimbleEvent {
      */
     public BlockState getPreState() {
         return this.preState;
+    }
+
+    public ThimbleSubType getSubType() {
+        return this.subType;
     }
 
 }

@@ -17,6 +17,8 @@ public class ThimbleEventSerializer implements JsonSerializer<ThimbleEvent> {
     public JsonElement serialize(ThimbleEvent event, Type typeOfSrc, JsonSerializationContext context) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("causingEntity", event.getCausingEntity().getUuidAsString());
+        map.put("time", event.getTime());
+        map.put("type", event.getType());
 
         // handle serialisation for block update events
         if (event instanceof ThimbleBlockUpdateEvent) {
@@ -24,6 +26,8 @@ public class ThimbleEventSerializer implements JsonSerializer<ThimbleEvent> {
 
             map.put("preState", updateEvent.getPreState().toString());
             map.put("postState", updateEvent.getPostState().toString());
+
+            map.put("subType", updateEvent.getSubType());
         }
 
 

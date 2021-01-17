@@ -13,20 +13,27 @@ import java.time.LocalDateTime;
 
 public abstract class ThimbleEvent {
 
-    public boolean restored;
+    public boolean rollbedBack;
     protected Entity causingEntity;
     protected BlockPos pos;
     protected int id;
     protected long time;
     protected DimensionType dimension;
+    protected ThimbleType type;
 
-    public ThimbleEvent(Entity causingEntity, BlockPos pos, DimensionType dimension, long time) {
+    public enum ThimbleType {
+        BLOCK_UPDATE,
+        INTERACT
+    }
+
+    public ThimbleEvent(Entity causingEntity, BlockPos pos, DimensionType dimension, long time, ThimbleType type) {
         this.causingEntity = causingEntity;
         this.pos = pos;
         this.dimension = dimension;
         this.id = generateID();
         this.time = time;
-        this.restored = false;
+        this.rollbedBack = false;
+        this.type = type;
     }
 
     /**
@@ -59,12 +66,12 @@ public abstract class ThimbleEvent {
         }
     }
 
-    public abstract boolean revertRestoration(World world);
+    public abstract boolean restore(World world);
 
-    public abstract boolean restoreEvent(World world);
+    public abstract boolean rollback(World world);
 
-    public boolean restoreEvent(World world, boolean deleteEvent) {
-        boolean couldRestore = this.restoreEvent(world);
+    public boolean rollback(World world, boolean deleteEvent) {
+        boolean couldRestore = this.rollback(world);
         if (couldRestore && deleteEvent) {
             ThimbleEventLogger.EventList.remove(this);
         }
@@ -91,6 +98,10 @@ public abstract class ThimbleEvent {
      */
     public long getTime() {
         return this.time;
+    }
+
+    public ThimbleType getType() {
+        return this.type;
     }
 
 }

@@ -17,7 +17,7 @@ public class ThimbleBlockPlaceEvent extends ThimbleBlockUpdateEvent {
      * @param postState the state of the block after it was placed
      */
     public ThimbleBlockPlaceEvent(LivingEntity causingEntity, BlockPos pos, DimensionType dimension, long time, BlockState preState, BlockState postState) {
-        super(causingEntity, pos, dimension, time);
+        super(causingEntity, pos, dimension, time, ThimbleSubType.BLOCK_PLACE);
 
         this.preState = preState;
         this.postState = postState;
@@ -28,7 +28,7 @@ public class ThimbleBlockPlaceEvent extends ThimbleBlockUpdateEvent {
     public String toString() {
         String stringified = "";
 
-        if (this.restored)
+        if (this.rollbedBack)
             stringified += "Restored: ";
 
         stringified += this.time + ", ";
