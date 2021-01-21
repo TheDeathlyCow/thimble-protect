@@ -16,7 +16,7 @@ public class ThimbleBlockBreakEvent extends ThimbleBlockUpdateEvent {
      * @param pos           the position that the block was broken at
      * @param state         block state of block that was broken
      */
-    public ThimbleBlockBreakEvent(String causingEntity, BlockPos pos, DimensionType dimension, long time, BlockState state) {
+    public ThimbleBlockBreakEvent(String causingEntity, BlockPos pos, String dimension, long time, BlockState state) {
         super(causingEntity, pos, dimension, time, ThimbleSubType.BLOCK_BREAK);
         this.preState = state;
         this.postState = Blocks.AIR.getDefaultState();

@@ -15,7 +15,7 @@ public class ThimbleExplosionEvent extends ThimbleBlockUpdateEvent {
      * @param causingEntity
      * @param pos
      */
-    public ThimbleExplosionEvent(String causingEntity, BlockPos pos, DimensionType dimension, long time, BlockState state) {
+    public ThimbleExplosionEvent(String causingEntity, BlockPos pos, String dimension, long time, BlockState state) {
         super(causingEntity, pos, dimension, time, ThimbleSubType.EXPLOSION);
         this.preState = state;
         this.postState = Blocks.AIR.getDefaultState();

@@ -38,6 +38,8 @@ public class ThimbleProtectCommand {
     }
 
     public static int lookup(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+
+
         if (EventList.isEmpty()) {
             context.getSource().sendFeedback(new LiteralText("No events to lookup!"), false);
             return -1;

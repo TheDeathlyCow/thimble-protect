@@ -8,6 +8,7 @@ import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.dimension.DimensionType;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -32,6 +33,7 @@ public abstract class BlockPlaceMixin {
             PlayerEntity player = ctx.getPlayer();
             BlockPos pos = ctx.getBlockPos();
             World world = ctx.getWorld();
+
             ThimbleBlockUpdateEvent event = new ThimbleBlockPlaceEvent(player.getUuidAsString(), pos, world.getDimension(), Instant.now().getEpochSecond(), preState, postState);
             event.addToLog();
         }

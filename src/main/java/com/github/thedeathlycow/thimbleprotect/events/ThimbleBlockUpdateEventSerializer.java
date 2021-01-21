@@ -1,9 +1,8 @@
 package com.github.thedeathlycow.thimbleprotect.events;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
+import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
+import net.minecraft.util.math.BlockPos;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,7 +10,9 @@ import java.lang.reflect.Type;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class ThimbleBlockUpdateEventSerializer implements JsonSerializer<ThimbleBlockUpdateEvent> {
+import static com.github.thedeathlycow.thimbleprotect.events.ThimbleBlockUpdateEvent.ThimbleSubType;
+
+public class ThimbleBlockUpdateEventSerializer implements JsonSerializer<ThimbleBlockUpdateEvent>, JsonDeserializer<ThimbleBlockUpdateEvent> {
 
     final Type objectType = new TypeToken<Map<String, Object>>() {}.getType();
 
@@ -27,6 +28,24 @@ public class ThimbleBlockUpdateEventSerializer implements JsonSerializer<Thimble
         map.put("preState", event.getPreState().toString());
         map.put("postState", event.getPostState().toString());
 
+        map.put("dimension", event.getDimension());
+
         return context.serialize(map, objectType);
+    }
+
+    @Override
+    public ThimbleBlockUpdateEvent deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+        JsonObject object = json.getAsJsonObject();
+
+        String uuid = object.get("causingEntity").getAsString();
+        long time = object.get("time").getAsLong();
+        ThimbleSubType subType = null;
+        try {
+            subType = ThimbleSubType.valueOf(object.get("subType").getAsString());
+        } catch(IllegalArgumentException e) {
+            e.printStackTrace();
+        }
+
+        return new ThimbleBlockUpdateEvent(uuid, null, null, time, subType);
     }
 }

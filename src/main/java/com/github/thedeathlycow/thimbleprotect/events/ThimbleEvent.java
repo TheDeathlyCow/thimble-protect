@@ -16,7 +16,7 @@ public abstract class ThimbleEvent {
     protected BlockPos pos;
     protected int id;
     protected long time;
-    protected DimensionType dimension;
+    protected String dimension;
     protected ThimbleType type;
 
     public enum ThimbleType {
@@ -24,7 +24,7 @@ public abstract class ThimbleEvent {
         INTERACT
     }
 
-    public ThimbleEvent(String causingEntity, BlockPos pos, DimensionType dimension, long time, ThimbleType type) {
+    public ThimbleEvent(String causingEntity, BlockPos pos, String dimension, long time, ThimbleType type) {
         this.causingEntity = causingEntity;
         this.pos = pos;
         this.dimension = dimension;
@@ -35,13 +35,24 @@ public abstract class ThimbleEvent {
     }
 
     /**
+     * This consturctor should <b>ONLY</b> be called when reading from a JSON file.
+     */
+    public ThimbleEvent(String causingEntity, long time, ThimbleType type, boolean rolledBack) {
+        this.causingEntity = causingEntity;
+        this.time = time;
+        this.type = type;
+        this.rollbedBack = rolledBack;
+    }
+
+    /**
      * TODO: Should return the ordinal number of the event in the database.
      */
     private int generateID() {
         return 0;
     }
 
-    public void addToLog() {
+    public abstract void addToLog();
+//    {
 //        try {
 //            int posX = this.getPos().getX();
 //            int posY = this.getPos().getY();
@@ -62,7 +73,7 @@ public abstract class ThimbleEvent {
 //            System.out.println("Error writing ThimbleEvent to file: " + e);
 ////            e.printStackTrace();
 //        }
-    }
+//    }
 
     public abstract boolean restore(World world);
 
@@ -79,7 +90,7 @@ public abstract class ThimbleEvent {
 
     // * ====== START GETTER METHODS ====== * //
 
-    public DimensionType getDimension() {
+    public String getDimension() {
         return dimension;
     }
 
