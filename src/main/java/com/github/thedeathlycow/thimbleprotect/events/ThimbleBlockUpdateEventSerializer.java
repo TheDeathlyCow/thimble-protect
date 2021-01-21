@@ -30,8 +30,6 @@ public class ThimbleBlockUpdateEventSerializer implements JsonSerializer<Thimble
 
         map.put("dimension", event.getDimension());
 
-//        Map<String, Integer> posMap = new LinkedHashMap<>();
-//        posMap.put("posX", event.getPos().getX());
         map.put("position", event.getPos());
 
         return context.serialize(map, objectType);

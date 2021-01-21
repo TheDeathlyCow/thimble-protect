@@ -1,5 +1,6 @@
 package com.github.thedeathlycow.thimbleprotect.events;
 
+import com.github.thedeathlycow.thimbleprotect.ThimbleProtect;
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
@@ -98,13 +99,24 @@ public class ThimbleBlockUpdateEvent extends ThimbleEvent {
 
     private String genParentDirectory(int posX, int posY, int posZ) {
 
-        String regionFilename = BASE_FILE_PATH + "r" + posX / 512 + "," + posZ / 512;
-        String chunkFilename = "c" + posX / 16 + "," + posY / 16 + "," + posZ / 16;
 
-        File regionFile = new File(regionFilename);
-        regionFile.mkdir();
+        String directoryPath = "";
+        try {
+            directoryPath = BASE_FILE_PATH + this.getDimension().split(":")[0]
+                    + "/" + this.getDimension().split(":")[1]
+                    + "/" + "r" + posX / 512 + "," + posZ / 512;
+        } catch(IndexOutOfBoundsException e) {
+            ThimbleProtect.Print("ERROR - Dimenion name has no namespace!");
+            directoryPath = BASE_FILE_PATH + this.getDimension().split(":")[0]
+                    + "/" + "r" + posX / 512 + "," + posZ / 512;
+        }
 
-        return regionFilename + "/" + chunkFilename + ".thimble";
+        File direc = new File(directoryPath);
+        direc.mkdirs();
+
+        String chunkFilename = "c" + posX / 16 + "," + posY / 16 + "," + posZ / 16 + ".thimble";
+
+        return directoryPath + "/" + chunkFilename;
     }
 
     @Override
