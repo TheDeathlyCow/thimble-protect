@@ -75,8 +75,8 @@ public class ThimbleBlockUpdateEvent extends ThimbleEvent {
         int posY = this.getPos().getY();
         int posZ = this.getPos().getZ();
         try {
-            String parentFilepath = this.genParentDirectory(posX, posZ);
-            String filename = parentFilepath + posX + "." + posY + "." + posZ + ".thimble";
+            String filename = this.genParentDirectory(posX, posY, posZ);
+//            String filename = parentFilepath + posX + "." + posY + "." + posZ + ".thimble";
 
             fileWriter = new FileWriter(filename, true);
 
@@ -96,21 +96,15 @@ public class ThimbleBlockUpdateEvent extends ThimbleEvent {
         }
     }
 
-    private String genParentDirectory(int posX, int posZ) {
+    private String genParentDirectory(int posX, int posY, int posZ) {
 
         String regionFilename = BASE_FILE_PATH + "r" + posX / 512 + "," + posZ / 512;
-        String chunkFilename = "c" + posX / 16 + "," + posZ / 16;
+        String chunkFilename = "c" + posX / 16 + "," + posY / 16 + "," + posZ / 16;
 
         File regionFile = new File(regionFilename);
-        if (regionFile.mkdir()) {
-            System.out.println("[ThimbleProtect] Created new region directory: " + regionFilename);
-        }
-        File chunkFile = new File(regionFilename + "/" + chunkFilename + "/");
-        if (chunkFile.mkdir()) {
-            System.out.println("[ThimbleProtect] Created new region directory: " + chunkFilename + "/");
-        }
+        regionFile.mkdir();
 
-        return regionFilename + "/" + chunkFilename + "/";
+        return regionFilename + "/" + chunkFilename + ".thimble";
     }
 
     @Override
@@ -144,7 +138,7 @@ public class ThimbleBlockUpdateEvent extends ThimbleEvent {
         this.preState = preState;
     }
 
-    public void setPostSTate(BlockState postState) {
+    public void setPostState(BlockState postState) {
         this.postState = postState;
     }
 

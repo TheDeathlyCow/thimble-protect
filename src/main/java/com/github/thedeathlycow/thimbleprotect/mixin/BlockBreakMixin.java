@@ -20,7 +20,8 @@ public abstract class BlockBreakMixin {
     @Inject(at = @At("HEAD"), method = "onBreak")
     public void onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player, CallbackInfo ci) {
         if (player != null) {
-            ThimbleBlockUpdateEvent event = new ThimbleBlockBreakEvent(player.getUuidAsString(), pos, world.getDimension(), Instant.now().getEpochSecond(), state);
+            String dimensionName = world.getRegistryKey().getValue().toString();
+            ThimbleBlockUpdateEvent event = new ThimbleBlockBreakEvent(player.getUuidAsString(), pos, dimensionName, Instant.now().getEpochSecond(), state);
             event.addToLog();
         }
     }

@@ -42,7 +42,7 @@ public class ThimbleProtect implements ModInitializer {
         if (createdFile) {
             System.out.println("Created thimble directory.");
         } else {
-            System.out.println("Failed to create thimble directory.");
+            System.out.println("Failed to create thimble directory (file may already exist).");
         }
 
         File eventFile = new File("thimble/events");
@@ -51,7 +51,7 @@ public class ThimbleProtect implements ModInitializer {
         if (createdFile) {
             System.out.println("Created events directory.");
         } else {
-            System.out.println("Failed to create events directory.");
+            System.out.println("Failed to create events directory (file may already exist).");
         }
 
     }

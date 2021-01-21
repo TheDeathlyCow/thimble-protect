@@ -33,8 +33,9 @@ public abstract class BlockPlaceMixin {
             PlayerEntity player = ctx.getPlayer();
             BlockPos pos = ctx.getBlockPos();
             World world = ctx.getWorld();
+            String dimensionName = world.getRegistryKey().getValue().toString();
 
-            ThimbleBlockUpdateEvent event = new ThimbleBlockPlaceEvent(player.getUuidAsString(), pos, world.getDimension(), Instant.now().getEpochSecond(), preState, postState);
+            ThimbleBlockUpdateEvent event = new ThimbleBlockPlaceEvent(player.getUuidAsString(), pos, dimensionName, Instant.now().getEpochSecond(), preState, postState);
             event.addToLog();
         }
     }
