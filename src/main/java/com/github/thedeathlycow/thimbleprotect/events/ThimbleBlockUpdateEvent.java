@@ -32,7 +32,7 @@ public class ThimbleBlockUpdateEvent extends ThimbleEvent {
      * Create a ThimbleBlockUpdateEvent with a causing entity.
      *
      */
-    public ThimbleBlockUpdateEvent(Entity causingEntity, BlockPos pos, DimensionType dimension, long time, ThimbleSubType subtype) {
+    public ThimbleBlockUpdateEvent(String causingEntity, BlockPos pos, DimensionType dimension, long time, ThimbleSubType subtype) {
         super(causingEntity, pos, dimension, time, ThimbleType.BLOCK_UPDATE);
         this.subType = subtype;
     }
@@ -61,12 +61,11 @@ public class ThimbleBlockUpdateEvent extends ThimbleEvent {
 
         FileWriter fileWriter = null;
         String serialised = "";
+        int posX = this.getPos().getX();
+        int posY = this.getPos().getY();
+        int posZ = this.getPos().getZ();
         try {
-            int posX = this.getPos().getX();
-            int posY = this.getPos().getY();
-            int posZ = this.getPos().getZ();
-
-            String parentFilepath = this.genParentDirectory();
+            String parentFilepath = this.genParentDirectory(posX, posZ);
             String filename = parentFilepath + posX + "." + posY + "." + posZ + ".json";
 
             fileWriter = new FileWriter(filename);
@@ -87,20 +86,18 @@ public class ThimbleBlockUpdateEvent extends ThimbleEvent {
         }
     }
 
-    private String genParentDirectory() {
-        int posX = this.getPos().getX();
-        int posZ = this.getPos().getZ();
+    private String genParentDirectory(int posX, int posZ) {
 
         String regionFilename = BASE_FILE_PATH + "r" + posX / 512 + "," + posZ / 512;
         String chunkFilename = "c" + posX / 16 + "," + posZ / 16;
 
         File regionFile = new File(regionFilename);
         if (regionFile.mkdir()) {
-            System.out.println("Created new region directory: " + regionFilename);
+            System.out.println("[ThimbleProtect] Created new region directory: " + regionFilename);
         }
         File chunkFile = new File(regionFilename + "/" + chunkFilename + "/");
         if (chunkFile.mkdir()) {
-            System.out.println("Created new region directory: " + chunkFilename + "/");
+            System.out.println("[ThimbleProtect] Created new region directory: " + chunkFilename + "/");
         }
 
         return regionFilename + "/" + chunkFilename + "/";

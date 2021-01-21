@@ -70,6 +70,7 @@ public class ThimbleProtectCommand {
         }
 
         World world = context.getSource().getWorld();
+
         int restoreCount = context.getArgument("Rollback Count", Integer.class);
         int restored = 0;
         for (int i = EventList.size() - 1; i >= 0 && restored < restoreCount; i--) {

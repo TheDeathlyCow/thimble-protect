@@ -1,5 +1,8 @@
 package com.github.thedeathlycow.thimbleprotect.mixin;
 
+import com.github.thedeathlycow.thimbleprotect.ThimbleProtect;
+import com.github.thedeathlycow.thimbleprotect.events.ThimbleBlockUpdateEvent;
+import com.github.thedeathlycow.thimbleprotect.events.ThimbleEvent;
 import com.github.thedeathlycow.thimbleprotect.events.ThimbleExplosionEvent;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
@@ -37,8 +40,13 @@ public abstract class ExplosionMixin {
 
         for (BlockPos currPos : affectedBlockPositions) {
             BlockState currState = this.world.getBlockState(currPos);
+
             if (!currState.isAir()) {
-                ThimbleExplosionEvent event = new ThimbleExplosionEvent(this.entity, currPos, world.getDimension(), Instant.now().getEpochSecond(), currState);
+                String entityUUID = ThimbleBlockUpdateEvent.NULL_ENTITY_STRING;
+                if (this.entity != null) {
+                    entityUUID = this.entity.getUuidAsString();
+                }
+                ThimbleExplosionEvent event = new ThimbleExplosionEvent(entityUUID, currPos, world.getDimension(), Instant.now().getEpochSecond(), currState);
                 event.addToLog();
             }
         }

@@ -12,7 +12,7 @@ import java.io.FileWriter;
 public abstract class ThimbleEvent {
 
     public boolean rollbedBack;
-    protected Entity causingEntity;
+    protected String causingEntity;
     protected BlockPos pos;
     protected int id;
     protected long time;
@@ -24,7 +24,7 @@ public abstract class ThimbleEvent {
         INTERACT
     }
 
-    public ThimbleEvent(Entity causingEntity, BlockPos pos, DimensionType dimension, long time, ThimbleType type) {
+    public ThimbleEvent(String causingEntity, BlockPos pos, DimensionType dimension, long time, ThimbleType type) {
         this.causingEntity = causingEntity;
         this.pos = pos;
         this.dimension = dimension;
@@ -87,7 +87,7 @@ public abstract class ThimbleEvent {
         return this.pos;
     }
 
-    public Entity getCausingEntity() {
+    public String getCausingEntity() {
         return this.causingEntity;
     }
 

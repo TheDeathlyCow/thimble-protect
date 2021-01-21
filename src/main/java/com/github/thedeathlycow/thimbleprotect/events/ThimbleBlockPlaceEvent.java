@@ -16,7 +16,7 @@ public class ThimbleBlockPlaceEvent extends ThimbleBlockUpdateEvent {
      * @param preState the state of the block before the current block was placed
      * @param postState the state of the block after it was placed
      */
-    public ThimbleBlockPlaceEvent(LivingEntity causingEntity, BlockPos pos, DimensionType dimension, long time, BlockState preState, BlockState postState) {
+    public ThimbleBlockPlaceEvent(String causingEntity, BlockPos pos, DimensionType dimension, long time, BlockState preState, BlockState postState) {
         super(causingEntity, pos, dimension, time, ThimbleSubType.BLOCK_PLACE);
 
         this.preState = preState;
@@ -33,7 +33,7 @@ public class ThimbleBlockPlaceEvent extends ThimbleBlockUpdateEvent {
 
         stringified += this.time + ", ";
         if (this.causingEntity != null) {
-            stringified += this.causingEntity.getName().asString();
+            stringified += this.causingEntity;
         } else {
             stringified += ThimbleBlockUpdateEvent.NULL_ENTITY_STRING;
         }

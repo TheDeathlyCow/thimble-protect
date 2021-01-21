@@ -6,7 +6,7 @@ import net.minecraft.world.dimension.DimensionType;
 
 public class ThimbleChestInteractEvent extends ThimbleInteractEvent {
 
-    public ThimbleChestInteractEvent(Entity causingEntity, BlockPos pos, DimensionType dimension, long time) {
+    public ThimbleChestInteractEvent(String causingEntity, BlockPos pos, DimensionType dimension, long time) {
         super(causingEntity, pos, dimension, time);
     }
 }

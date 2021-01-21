@@ -25,6 +25,10 @@ public class ThimbleProtect implements ModInitializer {
         System.out.println("ThimbleProtect initialised!");
     }
 
+    public static void Print(String message) {
+        System.out.println("[ThimbleProtect]: " + message);
+    }
+
     private void registerCommands() {
         System.out.println("Registering ThimbleProtect commands...");
         ThimbleProtectCommand.registerCommand();

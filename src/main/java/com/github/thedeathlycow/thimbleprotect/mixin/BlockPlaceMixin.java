@@ -24,7 +24,7 @@ public abstract class BlockPlaceMixin {
     protected @Nullable
     abstract BlockState getPlacementState(ItemPlacementContext context);
 
-    @Inject(at = @At(value = "HEAD"), method = "place")
+    @Inject(at = @At(value = "HEAD"), method = "place(Lnet/minecraft/item/ItemPlacementContext;)Lnet/minecraft/util/ActionResult;")
     public void place(ItemPlacementContext ctx, CallbackInfoReturnable<Boolean> info) {
         if (ctx.getPlayer() != null) {
             BlockState preState = ctx.getWorld().getBlockState(ctx.getBlockPos());
@@ -32,8 +32,7 @@ public abstract class BlockPlaceMixin {
             PlayerEntity player = ctx.getPlayer();
             BlockPos pos = ctx.getBlockPos();
             World world = ctx.getWorld();
-
-            ThimbleBlockUpdateEvent event = new ThimbleBlockPlaceEvent(player, pos, world.getDimension(), Instant.now().getEpochSecond(), preState, postState);
+            ThimbleBlockUpdateEvent event = new ThimbleBlockPlaceEvent(player.getUuidAsString(), pos, world.getDimension(), Instant.now().getEpochSecond(), preState, postState);
             event.addToLog();
         }
     }

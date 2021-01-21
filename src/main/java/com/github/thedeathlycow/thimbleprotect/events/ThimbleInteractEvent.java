@@ -11,18 +11,18 @@ public class ThimbleInteractEvent extends ThimbleEvent {
     DimensionType dimension;
     Block block;
 
-    public ThimbleInteractEvent(Entity causingEntity, BlockPos pos, DimensionType dimension, long time) {
+    public ThimbleInteractEvent(String causingEntity, BlockPos pos, DimensionType dimension, long time) {
         super(causingEntity, pos, dimension, time, ThimbleType.INTERACT);
         this.dimension = dimension;
     }
 
-    public ThimbleInteractEvent(Entity causingEntity, BlockPos pos, DimensionType dimension, long tick, Block block) {
+    public ThimbleInteractEvent(String causingEntity, BlockPos pos, DimensionType dimension, long tick, Block block) {
         this(causingEntity, pos, dimension, tick);
         this.block = block;
     }
 
     public String toString() {
-        return this.causingEntity.getName().asString() + " interacted with " + this.block.getTranslationKey();
+        return this.causingEntity + " interacted with " + this.block.getTranslationKey();
     }
 
     /**
