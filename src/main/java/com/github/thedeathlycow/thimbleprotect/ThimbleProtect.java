@@ -32,6 +32,8 @@ public class ThimbleProtect implements ModInitializer {
             e.printStackTrace();
         }
 
+        System.out.println("Config Settings: " + CONFIG.toString());
+
         System.out.println("ThimbleProtect initialised!");
     }
 
@@ -55,7 +57,6 @@ public class ThimbleProtect implements ModInitializer {
         } else {
             System.out.println(String.format(failedMessage, "thimble"));
         }
-
         File eventFile = new File("thimble/events");
         if (eventFile.mkdir()) {
             System.out.println(String.format(successMessage, "events"));

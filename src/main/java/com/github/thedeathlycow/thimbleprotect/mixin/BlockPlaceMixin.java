@@ -1,5 +1,6 @@
 package com.github.thedeathlycow.thimbleprotect.mixin;
 
+import com.github.thedeathlycow.thimbleprotect.ThimbleProtect;
 import com.github.thedeathlycow.thimbleprotect.events.ThimbleBlockPlaceEvent;
 import com.github.thedeathlycow.thimbleprotect.events.ThimbleBlockUpdateEvent;
 import net.minecraft.block.BlockState;
@@ -36,7 +37,9 @@ public abstract class BlockPlaceMixin {
             String dimensionName = world.getRegistryKey().getValue().toString();
 
             ThimbleBlockUpdateEvent event = new ThimbleBlockPlaceEvent(player.getUuidAsString(), pos, dimensionName, Instant.now().getEpochSecond(), preState, postState);
-            event.addToLog();
+
+            if (ThimbleProtect.CONFIG.blockPlace)
+                event.addToLog();
         }
     }
 }

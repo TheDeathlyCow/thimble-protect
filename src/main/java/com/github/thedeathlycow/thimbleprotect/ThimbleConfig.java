@@ -30,4 +30,8 @@ public class ThimbleConfig {
         return new ThimbleConfig(true, true, true);
     }
 
+    public String toString() {
+        return "blockBreak:{" + this.blockBreak + "},blockPlace:{" + this.blockPlace + "},explosion:{" + this.explosion + "}";
+    }
+
 }

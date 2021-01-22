@@ -38,16 +38,18 @@ public abstract class ExplosionMixin {
     public void affectWorld(boolean bl, CallbackInfo ci) {
         List<BlockPos> affectedBlockPositions = this.getAffectedBlocks();
 
-        for (BlockPos currPos : affectedBlockPositions) {
-            BlockState currState = this.world.getBlockState(currPos);
-            String dimensionName = world.getRegistryKey().getValue().toString();
-            if (!currState.isAir()) {
-                String entityUUID = ThimbleBlockUpdateEvent.NULL_ENTITY_STRING;
-                if (this.entity != null) {
-                    entityUUID = this.entity.getUuidAsString();
+        if (ThimbleProtect.CONFIG.explosion) {
+            for (BlockPos currPos : affectedBlockPositions) {
+                BlockState currState = this.world.getBlockState(currPos);
+                String dimensionName = world.getRegistryKey().getValue().toString();
+                if (!currState.isAir()) {
+                    String entityUUID = ThimbleBlockUpdateEvent.NULL_ENTITY_STRING;
+                    if (this.entity != null) {
+                        entityUUID = this.entity.getUuidAsString();
+                    }
+                    ThimbleExplosionEvent event = new ThimbleExplosionEvent(entityUUID, currPos, dimensionName, Instant.now().getEpochSecond(), currState);
+                    event.addToLog();
                 }
-                ThimbleExplosionEvent event = new ThimbleExplosionEvent(entityUUID, currPos, dimensionName, Instant.now().getEpochSecond(), currState);
-                event.addToLog();
             }
         }
     }

@@ -33,8 +33,14 @@ public class ThimbleProtectCommand {
                             .then(argument("Revert Count", IntegerArgumentType.integer(1))
                                     .executes(ThimbleProtectCommand::restore)))
                     .then(literal("clearEvents")
-                            .executes(ThimbleProtectCommand::clearEvents)));
+                            .executes(ThimbleProtectCommand::clearEvents))
+            .then(literal("reloadConfig")
+            .executes(ThimbleProtectCommand::reloadConfig)));
         });
+    }
+
+    public static int reloadConfig(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        return 1;
     }
 
     public static int lookup(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {

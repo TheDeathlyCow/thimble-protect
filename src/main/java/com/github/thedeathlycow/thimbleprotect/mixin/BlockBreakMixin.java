@@ -1,5 +1,7 @@
 package com.github.thedeathlycow.thimbleprotect.mixin;
 
+import com.github.thedeathlycow.thimbleprotect.ThimbleConfig;
+import com.github.thedeathlycow.thimbleprotect.ThimbleProtect;
 import com.github.thedeathlycow.thimbleprotect.events.ThimbleBlockBreakEvent;
 import com.github.thedeathlycow.thimbleprotect.events.ThimbleBlockUpdateEvent;
 import net.minecraft.block.Block;
@@ -22,7 +24,9 @@ public abstract class BlockBreakMixin {
         if (player != null) {
             String dimensionName = world.getRegistryKey().getValue().toString();
             ThimbleBlockUpdateEvent event = new ThimbleBlockBreakEvent(player.getUuidAsString(), pos, dimensionName, Instant.now().getEpochSecond(), state);
-            event.addToLog();
+
+            if (ThimbleProtect.CONFIG.blockBreak)
+                event.addToLog();
         }
     }
 
