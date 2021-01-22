@@ -1,12 +1,14 @@
 package com.github.thedeathlycow.thimbleprotect;
 
 import com.github.thedeathlycow.thimbleprotect.commands.ThimbleProtectCommand;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.minecraft.block.DoorBlock;
 
-import java.io.File;
+import java.io.*;
 
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
@@ -15,12 +17,20 @@ public class ThimbleProtect implements ModInitializer {
 
     public static final String MODID = "thimble-protect";
 
+    public static ThimbleConfig CONFIG;
+
     @Override
     public void onInitialize() {
         System.out.println("Initializing ThimbleProtect...");
 
         this.registerCommands();
         this.createDirectories();
+
+        try {
+            this.readConfig();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         System.out.println("ThimbleProtect initialised!");
     }
@@ -36,23 +46,48 @@ public class ThimbleProtect implements ModInitializer {
     }
 
     private void createDirectories() {
-        File thimbleFile = new File("thimble");
-        boolean createdFile = thimbleFile.mkdir();
+        String failedMessage = "Failed to create %s directory (file may already exist).";
+        String successMessage = "Created %s directory.";
 
-        if (createdFile) {
-            System.out.println("Created thimble directory.");
+        File thimbleFile = new File("thimble");
+        if (thimbleFile.mkdir()) {
+            System.out.println(String.format(successMessage, "thimble"));
         } else {
-            System.out.println("Failed to create thimble directory (file may already exist).");
+            System.out.println(String.format(failedMessage, "thimble"));
         }
 
         File eventFile = new File("thimble/events");
-        createdFile = eventFile.mkdir();
-
-        if (createdFile) {
-            System.out.println("Created events directory.");
+        if (eventFile.mkdir()) {
+            System.out.println(String.format(successMessage, "events"));
         } else {
-            System.out.println("Failed to create events directory (file may already exist).");
+            System.out.println(String.format(failedMessage, "events"));
         }
+    }
 
+    private void readConfig() throws IOException {
+        System.out.println("Reading config...");
+        FileReader configFile = null;
+        try {
+            configFile = new FileReader("thimble/config.json");
+        } catch (FileNotFoundException e) {
+            System.out.println("Config not found, creating new config...");
+            this.createNewConfig();
+            System.out.println("New config created!");
+            return;
+        }
+        CONFIG = new Gson().fromJson(configFile, ThimbleConfig.class);
+        configFile.close();
+        System.out.println("Config loaded!");
+    }
+
+    private void createNewConfig() throws IOException {
+        CONFIG = ThimbleConfig.createDefaultConfig();
+        FileWriter writer = new FileWriter("thimble/config.json");
+        writer.write(new GsonBuilder()
+                .setPrettyPrinting()
+                .disableHtmlEscaping()
+                .create()
+                .toJson(CONFIG));
+        writer.close();
     }
 }
