@@ -41,13 +41,19 @@ public class ThimbleBlockUpdateEventSerializer implements JsonSerializer<Thimble
 
         String uuid = object.get("causingEntity").getAsString();
         long time = object.get("time").getAsLong();
-        ThimbleSubType subType = null;
+        ThimbleSubType subType = ThimbleSubType.BLOCK_BREAK;
         try {
             subType = ThimbleSubType.valueOf(object.get("subType").getAsString());
         } catch(IllegalArgumentException e) {
             e.printStackTrace();
         }
 
-        return new ThimbleBlockUpdateEvent(uuid, null, null, time, subType);
+        BlockPos pos = new BlockPos(object.get("position").getAsJsonObject().get("x").getAsInt(),
+                object.get("position").getAsJsonObject().get("y").getAsInt(),
+                object.get("position").getAsJsonObject().get("z").getAsInt());
+
+        String dimensionName = object.get("dimension").getAsString();
+
+        return new ThimbleBlockUpdateEvent(uuid, pos, dimensionName, time, subType);
     }
 }
