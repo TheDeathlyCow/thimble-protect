@@ -17,6 +17,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.util.List;
 
@@ -48,7 +49,11 @@ public abstract class ExplosionMixin {
                         entityUUID = this.entity.getUuidAsString();
                     }
                     ThimbleExplosionEvent event = new ThimbleExplosionEvent(entityUUID, currPos, dimensionName, Instant.now().getEpochSecond(), currState);
-                    event.addToLog();
+                    try {
+                        event.addToLog();
+                    } catch( IOException e ) {
+                        System.out.println("Error writing thimble event to file: " + e);
+                    }
                 }
             }
         }

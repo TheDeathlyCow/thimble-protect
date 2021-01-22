@@ -1,6 +1,7 @@
 package com.github.thedeathlycow.thimbleprotect.commands;
 
 import com.github.thedeathlycow.thimbleprotect.ThimbleEventLogger;
+import com.github.thedeathlycow.thimbleprotect.ThimbleProtect;
 import com.github.thedeathlycow.thimbleprotect.events.ThimbleEvent;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
@@ -11,6 +12,7 @@ import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.world.World;
 
+import java.io.IOException;
 import java.util.Arrays;
 
 import static com.github.thedeathlycow.thimbleprotect.ThimbleEventLogger.EventList;
@@ -34,12 +36,23 @@ public class ThimbleProtectCommand {
                                     .executes(ThimbleProtectCommand::restore)))
                     .then(literal("clearEvents")
                             .executes(ThimbleProtectCommand::clearEvents))
-            .then(literal("reloadConfig")
-            .executes(ThimbleProtectCommand::reloadConfig)));
+                    .then(literal("reloadConfig")
+                            .executes(ThimbleProtectCommand::reloadConfig)));
         });
     }
 
     public static int reloadConfig(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        String outputString = "";
+        try {
+            ThimbleProtect.readConfig();
+            outputString = "ThimbleProtect Config reloaded!\n" + ThimbleProtect.CONFIG.toString();
+        } catch (IOException e) {
+            outputString = "Error reloading config: " + e;
+            e.printStackTrace();
+        } finally {
+            context.getSource().sendFeedback(new LiteralText(outputString), false);
+        }
+
         return 1;
     }
 

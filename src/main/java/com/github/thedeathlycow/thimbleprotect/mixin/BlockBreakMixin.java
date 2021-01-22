@@ -14,6 +14,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.io.IOException;
 import java.time.Instant;
 
 @Mixin(Block.class)
@@ -25,8 +26,13 @@ public abstract class BlockBreakMixin {
             String dimensionName = world.getRegistryKey().getValue().toString();
             ThimbleBlockUpdateEvent event = new ThimbleBlockBreakEvent(player.getUuidAsString(), pos, dimensionName, Instant.now().getEpochSecond(), state);
 
-            if (ThimbleProtect.CONFIG.blockBreak)
-                event.addToLog();
+            if (ThimbleProtect.CONFIG.blockBreak) {
+                try {
+                    event.addToLog();
+                } catch( IOException e ) {
+                    System.out.println("Error writing thimble event to file: " + e);
+                }
+            }
         }
     }
 

@@ -8,6 +8,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 
 import java.io.FileWriter;
+import java.io.IOException;
 
 public abstract class ThimbleEvent {
 
@@ -51,7 +52,7 @@ public abstract class ThimbleEvent {
         return 0;
     }
 
-    public abstract void addToLog();
+    public abstract void addToLog() throws IOException;
 //    {
 //        try {
 //            int posX = this.getPos().getX();

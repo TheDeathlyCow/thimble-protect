@@ -17,6 +17,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.io.IOException;
 import java.time.Instant;
 
 @Mixin(BlockItem.class)
@@ -38,8 +39,13 @@ public abstract class BlockPlaceMixin {
 
             ThimbleBlockUpdateEvent event = new ThimbleBlockPlaceEvent(player.getUuidAsString(), pos, dimensionName, Instant.now().getEpochSecond(), preState, postState);
 
-            if (ThimbleProtect.CONFIG.blockPlace)
-                event.addToLog();
+            if (ThimbleProtect.CONFIG.blockPlace) {
+                try {
+                    event.addToLog();
+                } catch( IOException e ) {
+                    System.out.println("Error writing thimble event to file: " + e);
+                }
+            }
         }
     }
 }

@@ -3,21 +3,19 @@ package com.github.thedeathlycow.thimbleprotect;
 import com.github.thedeathlycow.thimbleprotect.commands.ThimbleProtectCommand;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.mojang.brigadier.arguments.IntegerArgumentType;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
-import net.minecraft.block.DoorBlock;
 
 import java.io.*;
-
-import static net.minecraft.server.command.CommandManager.argument;
-import static net.minecraft.server.command.CommandManager.literal;
 
 public class ThimbleProtect implements ModInitializer {
 
     public static final String MODID = "thimble-protect";
 
     public static ThimbleConfig CONFIG;
+
+    public static void Print(String message) {
+        System.out.println("[ThimbleProtect]: " + message);
+    }
 
     @Override
     public void onInitialize() {
@@ -27,7 +25,7 @@ public class ThimbleProtect implements ModInitializer {
         this.createDirectories();
 
         try {
-            this.readConfig();
+            readConfig();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -35,10 +33,6 @@ public class ThimbleProtect implements ModInitializer {
         System.out.println("Config Settings: " + CONFIG.toString());
 
         System.out.println("ThimbleProtect initialised!");
-    }
-
-    public static void Print(String message) {
-        System.out.println("[ThimbleProtect]: " + message);
     }
 
     private void registerCommands() {
@@ -65,14 +59,14 @@ public class ThimbleProtect implements ModInitializer {
         }
     }
 
-    private void readConfig() throws IOException {
+    public static void readConfig() throws IOException {
         System.out.println("Reading config...");
         FileReader configFile = null;
         try {
             configFile = new FileReader("thimble/config.json");
         } catch (FileNotFoundException e) {
             System.out.println("Config not found, creating new config...");
-            this.createNewConfig();
+            createNewConfig();
             System.out.println("New config created!");
             return;
         }
@@ -81,7 +75,7 @@ public class ThimbleProtect implements ModInitializer {
         System.out.println("Config loaded!");
     }
 
-    private void createNewConfig() throws IOException {
+    private static void createNewConfig() throws IOException {
         CONFIG = ThimbleConfig.createDefaultConfig();
         FileWriter writer = new FileWriter("thimble/config.json");
         writer.write(new GsonBuilder()

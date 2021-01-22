@@ -68,7 +68,7 @@ public class ThimbleBlockUpdateEvent extends ThimbleEvent {
         }
     }
 
-    public void addToLog() {
+    public void addToLog() throws IOException {
 
         FileWriter fileWriter = null;
         String serialised = "";
@@ -77,28 +77,25 @@ public class ThimbleBlockUpdateEvent extends ThimbleEvent {
         int posZ = this.getPos().getZ();
         try {
             String filename = this.genParentDirectory(posX, posY, posZ);
-//            String filename = parentFilepath + posX + "." + posY + "." + posZ + ".thimble";
-
             fileWriter = new FileWriter(filename, true);
+        } catch(FileNotFoundException e) {
+            e.printStackTrace();
+        } finally {
 
             GsonBuilder gsonBuilder = new GsonBuilder()
                     .registerTypeHierarchyAdapter(ThimbleBlockUpdateEvent.class, new ThimbleBlockUpdateEventSerializer());
             Gson eventGson = gsonBuilder.create();
 
             serialised = eventGson.toJson(this);
-            fileWriter.write(serialised + "\n");
 
-            fileWriter.close();
-        } catch(FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            System.out.println("Error writing ThimbleEvent to file: " + e);
-            e.printStackTrace();
+            if (fileWriter != null) {
+                fileWriter.write(serialised + "\n");
+                fileWriter.close();
+            }
         }
     }
 
     private String genParentDirectory(int posX, int posY, int posZ) {
-
 
         String directoryPath = "";
         try {
