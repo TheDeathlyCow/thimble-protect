@@ -44,11 +44,11 @@ public abstract class ExplosionMixin {
                 BlockState currState = this.world.getBlockState(currPos);
                 String dimensionName = world.getRegistryKey().getValue().toString();
                 if (!currState.isAir()) {
-                    String entityUUID = ThimbleBlockUpdateEvent.NULL_ENTITY_STRING;
+                    String causingEntity = ThimbleBlockUpdateEvent.NULL_ENTITY_STRING;
                     if (this.entity != null) {
-                        entityUUID = this.entity.getUuidAsString();
+                        causingEntity = this.entity.getUuidAsString();
                     }
-                    ThimbleExplosionEvent event = new ThimbleExplosionEvent(entityUUID, currPos, dimensionName, Instant.now().getEpochSecond(), currState);
+                    ThimbleExplosionEvent event = new ThimbleExplosionEvent(causingEntity, currPos, dimensionName, Instant.now().getEpochSecond(), currState);
                     try {
                         event.addToLog();
                     } catch( IOException e ) {

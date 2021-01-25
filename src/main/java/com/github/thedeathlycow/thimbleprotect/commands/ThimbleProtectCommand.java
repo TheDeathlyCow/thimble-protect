@@ -11,16 +11,15 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
+import net.minecraft.entity.Entity;
 import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
-import net.minecraft.text.Text;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +32,8 @@ import static net.minecraft.server.command.CommandManager.literal;
 
 public class ThimbleProtectCommand {
 
-    private static String distanceName = "distance";
+    private static String distanceName = "distance (in chunks)";
+    private static int numChecked = 0;
 
     public static void registerCommand() {
 
@@ -83,7 +83,7 @@ public class ThimbleProtectCommand {
             filename = "thimble/events/" + dimensionName + "/";
         }
 
-        filename += String.format("r%s,%s/c%s,%s,%s.thimble", posX / 512, posZ / 512, posX / 16, posY / 16, posZ / 16);
+        filename += String.format("r%s,%s/c%s,%s,%s.thimble", posX / 32, posZ / 32, posX, posY, posZ);
 
         Scanner inFile = null;
         try {
@@ -97,10 +97,11 @@ public class ThimbleProtectCommand {
                 .create();
 
         while (inFile.hasNextLine()) {
+            numChecked++;
             String line = inFile.nextLine();
             ThimbleBlockUpdateEvent currEvent = gson.fromJson(line, ThimbleBlockUpdateEvent.class);
-            if (currEvent.getPos().equals(new BlockPos(posX, posY, posZ)))
-                events.add(currEvent);
+//            if (currEvent.getPos().equals(new BlockPos(posX, posY, posZ)))
+            events.add(currEvent);
         }
 
         inFile.close();
@@ -110,38 +111,45 @@ public class ThimbleProtectCommand {
 
     public static int lookup(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
 
+        numChecked = 0;
+
         int distance = context.getArgument(distanceName, Integer.class);
         Vec3d pos = context.getSource().getPosition();
         String dimensionName = context.getSource().getWorld().getRegistryKey().getValue().toString();
-        int posX = (int) pos.getX();
-        int posY = (int) pos.getY();
-        int posZ = (int) pos.getZ();
+        int posX = ((int) pos.getX()) / 16;
+        int posY = ((int) pos.getY()) / 16;
+        int posZ = ((int) pos.getZ()) / 16;
 
-        List<ThimbleBlockUpdateEvent> foundEvents = new ArrayList<ThimbleBlockUpdateEvent>();
+        String message = " --- ThimbleProtect Lookup ---\n";
+        int howManyFound = 0;
 
-        for (int dx = posX - distance; dx < posX + distance; dx++) {
-            for (int dy = posY - distance; dy < posY + distance; dy++) {
-                for (int dz = posZ - distance; dz < posZ + distance; dz++) {
-                    foundEvents.addAll(getBlockUpdateEventsFromFile(dx, dy, dz, dimensionName));
+        ServerWorld world = context.getSource().getWorld();
+
+        for (int dx = (posX - distance); dx < (posX + distance); dx++) {
+            for (int dy = (posY - distance); dy < (posY + distance); dy++) {
+                for (int dz = (posZ - distance); dz < (posZ + distance); dz++) {
+
+                    List<ThimbleBlockUpdateEvent> foundEvents = getBlockUpdateEventsFromFile(dx, dy, dz, dimensionName);
+                    howManyFound += foundEvents.size();
+                    for (ThimbleBlockUpdateEvent event : foundEvents) {
+                        String name = event.getCausingEntity();
+                        Entity causingEntity = world.getEntity(UUID.fromString(name));
+
+                        if (causingEntity != null) {
+                            name = causingEntity.getEntityName();
+                        }
+
+                        message += "\n" + name + " " + event.getPos().toString() + " " + event.getDimension() + " " + event.getTime()
+                                + " " + event.getSubType();
+                    }
                 }
             }
         }
 
-        String message = " --- ThimbleProtect Lookup ---\n" +
-                "Found " + foundEvents.size() + " event(s)...";
-        for (ThimbleBlockUpdateEvent event : foundEvents) {
-            String name = "";
-            try {
-                name = context.getSource().getWorld().getEntity(UUID.fromString(event.getCausingEntity())).getEntityName();
-            } catch (NullPointerException e) {
-                name = ThimbleBlockUpdateEvent.NULL_ENTITY_STRING;
-            }
-            message += "\n" + name + " " + event.getPos().toString() + " " + event.getDimension() + " " + event.getTime()
-            + " " + event.getSubType();
-        }
+        message += "\nFound " + howManyFound + " event(s)...";
 
         context.getSource().sendFeedback(new LiteralText(message), false);
-
+        context.getSource().sendFeedback(new LiteralText("Checked " + numChecked + " blocks..."), false);
         return 1;
     }
 
