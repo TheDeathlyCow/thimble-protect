@@ -4,6 +4,8 @@ import com.github.thedeathlycow.thimbleprotect.ThimbleProtect;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.minecraft.block.BlockState;
+import net.minecraft.text.*;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
@@ -38,9 +40,9 @@ public class ThimbleBlockUpdateEvent extends ThimbleEvent {
     }
 
     public boolean restore(World world) {
-        if (this.rollbedBack) {
+        if (this.rolledBack) {
             world.setBlockState(this.pos, this.postState);
-            this.rollbedBack = false;
+            this.rolledBack = false;
             return true;
         } else {
             return false;
@@ -48,9 +50,9 @@ public class ThimbleBlockUpdateEvent extends ThimbleEvent {
     }
 
     public boolean rollback(World world) {
-        if (!this.rollbedBack) {
+        if (!this.rolledBack) {
             world.setBlockState(this.pos, this.preState);
-            this.rollbedBack = true;
+            this.rolledBack = true;
             return true;
         } else {
             return false;
@@ -112,31 +114,42 @@ public class ThimbleBlockUpdateEvent extends ThimbleEvent {
                 + " " + this.getSubType();
     }
 
-    public String toNeatString() {
-        return this.toNeatString(this.causingEntity);
+    public MutableText toText() {
+        return this.toText(this.causingEntity);
     }
 
-    public String toNeatString(String name) {
-        StringBuilder neat = new StringBuilder(this.getPos().getX() + ", " + this.getPos().getY() + ", " + this.getPos().getZ() + ": ");
-        neat.append(name).append(" ");
+    public MutableText toText(String name) {
+
+        Style nounStyle = Style.EMPTY.withFormatting(Formatting.DARK_PURPLE);
+        Style verbStyle = Style.EMPTY.withFormatting(Formatting.WHITE);;
+        Style posStyle = Style.EMPTY.withFormatting(Formatting.GRAY);
+
+        if (this.rolledBack) {
+            nounStyle = nounStyle.withFormatting(Formatting.STRIKETHROUGH);
+            verbStyle = verbStyle.withFormatting(Formatting.STRIKETHROUGH);
+            posStyle = posStyle.withFormatting(Formatting.STRIKETHROUGH);
+        }
+
+        MutableText neat = new LiteralText(this.getPos().getX() + ", " + this.getPos().getY() + ", " + this.getPos().getZ() + ": ").fillStyle(posStyle);
+
+        neat.append(new LiteralText(name).fillStyle(nounStyle)).append(" ");
         String verb = "";
-        switch(this.getSubType()) {
+        switch (this.getSubType()) {
             case BLOCK_BREAK:
-                verb = "broke " + Registry.BLOCK.getId(this.getPreState().getBlock());
+                neat.append(new LiteralText("broke ").fillStyle(verbStyle)).append(new LiteralText(Registry.BLOCK.getId(this.getPreState().getBlock()).toString()).fillStyle(nounStyle));
                 break;
             case BLOCK_PLACE:
-                verb = "placed " + Registry.BLOCK.getId(this.getPostState().getBlock());
+                neat.append(new LiteralText("placed ").fillStyle(verbStyle)).append(new LiteralText(Registry.BLOCK.getId(this.getPostState().getBlock()).toString()).fillStyle(nounStyle));
                 break;
             case EXPLOSION:
-                verb = "blew up " + Registry.BLOCK.getId(this.getPostState().getBlock());
+                neat.append(new LiteralText("blew up ").fillStyle(verbStyle)).append(new LiteralText(Registry.BLOCK.getId(this.getPostState().getBlock()).toString()).fillStyle(nounStyle));
                 break;
             default:
-                verb = "changed " + Registry.BLOCK.getId(this.getPostState().getBlock());
+                neat.append(new LiteralText("changed ").fillStyle(verbStyle)).append(new LiteralText(Registry.BLOCK.getId(this.getPostState().getBlock()).toString()).fillStyle(Style.EMPTY.withColor(TextColor.parse("light_purple"))));
                 break;
         }
-        neat.append(verb);
 
-        return neat.toString();
+        return neat;
     }
 
     /**
@@ -170,7 +183,7 @@ public class ThimbleBlockUpdateEvent extends ThimbleEvent {
     }
 
     public void setRolledBack(boolean rolledBack) {
-        this.rollbedBack = rolledBack;
+        this.rolledBack = rolledBack;
     }
 
     public enum ThimbleSubType {

@@ -36,7 +36,7 @@ public class ThimbleInteractEvent extends ThimbleEvent {
      */
     @Override
     public boolean restore(World world) {
-        this.rollbedBack = false;
+        this.rolledBack = false;
         return false;
     }
 
@@ -47,7 +47,7 @@ public class ThimbleInteractEvent extends ThimbleEvent {
      */
     @Override
     public boolean rollback(World world) {
-        this.rollbedBack = true;
+        this.rolledBack = true;
         return false;
     }
 }

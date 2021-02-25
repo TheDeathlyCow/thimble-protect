@@ -28,7 +28,7 @@ public class ThimbleBlockPlaceEvent extends ThimbleBlockUpdateEvent {
     public String toString() {
         String stringified = "";
 
-        if (this.rollbedBack)
+        if (this.rolledBack)
             stringified += "Restored: ";
 
         stringified += this.time + ", ";

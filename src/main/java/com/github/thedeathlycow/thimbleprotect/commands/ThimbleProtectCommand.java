@@ -8,13 +8,14 @@ import com.github.thedeathlycow.thimbleprotect.events.ThimbleEvent;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.LiteralText;
+import net.minecraft.text.*;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
@@ -76,46 +77,29 @@ public class ThimbleProtectCommand {
 
     public static int lookup(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
 
-        numChecked = 0;
+        List<ThimbleBlockUpdateEvent> foundBlockUpdateEvents = lookupBlockUpdateEvents(context);
 
-        int distance = context.getArgument(distanceName, Integer.class);
-        Vec3d pos = context.getSource().getPosition();
-        String dimensionName = context.getSource().getWorld().getRegistryKey().getValue().toString();
-        int chunkX = ((int) pos.getX()) / 16;
-        int chunkY = ((int) pos.getY()) / 16;
-        int chunkZ = ((int) pos.getZ()) / 16;
-        int lookupDistance = distance/16;
+        MutableText header = new LiteralText(" --- ").fillStyle(Style.EMPTY.withColor(TextColor.parse("aqua")))
+                .append(new LiteralText("ThimbleProtect Lookup").fillStyle(Style.EMPTY.withColor(TextColor.parse("light_purple"))))
+                .append(new LiteralText(" --- ").fillStyle(Style.EMPTY.withColor(TextColor.parse("aqua"))));
+        context.getSource().sendFeedback(header, false);
 
-        StringBuilder message = new StringBuilder(" --- ThimbleProtect Lookup ---");
-        int howManyFound = 0;
+        MutableText message = new LiteralText(" ");
+        for (ThimbleBlockUpdateEvent event : foundBlockUpdateEvents) {
 
-        ServerWorld world = context.getSource().getWorld();
-
-        for (int dx = (chunkX - lookupDistance); dx < (chunkX + lookupDistance); dx++) {
-            for (int dy = (chunkY - lookupDistance); dy < (chunkY + lookupDistance); dy++) {
-                for (int dz = (chunkZ - lookupDistance); dz < (chunkZ + lookupDistance); dz++) {
-                    List<ThimbleBlockUpdateEvent> foundEvents = getBlockUpdateEventsFromFile(pos, dx, dy, dz, distance, dimensionName);
-                    howManyFound += foundEvents.size();
-
-                    for (ThimbleBlockUpdateEvent event : foundEvents) {
-
-                        String name = event.getCausingEntity();
-                        Entity causingEntity = world.getEntity(UUID.fromString(name));
-                        if (causingEntity != null) {
-                            name = causingEntity.getName().asString();
-                        }
-
-                        message.append("\n ").append(event.toNeatString(name));
-                    }
-
-                }
+            String name = event.getCausingEntity();
+            Entity causingEntity = context.getSource().getWorld().getEntity(UUID.fromString(name));
+            if (causingEntity != null) {
+                name = causingEntity.getName().asString();
             }
+
+            message.append(event.toText(name)).append("\n");
         }
 
-        message.append("\nFound ").append(howManyFound).append(" event(s)...");
+        message.append("Found ").append( "" + foundBlockUpdateEvents.size() ).append(" event(s)...");
 
-        context.getSource().sendFeedback(new LiteralText(message.toString()), false);
-        context.getSource().sendFeedback(new LiteralText("Checked " + numChecked + " blocks..."), false);
+        context.getSource().sendFeedback(message, false);
+        context.getSource().sendFeedback(new LiteralText("Checked " + numChecked + " events..."), false);
         return 1;
     }
 
@@ -169,6 +153,31 @@ public class ThimbleProtectCommand {
 
 
     // * Start Helper Methods * //
+
+    private static List<ThimbleBlockUpdateEvent> lookupBlockUpdateEvents(CommandContext<ServerCommandSource> context) {
+        numChecked = 0;
+
+        int distance = context.getArgument(distanceName, Integer.class);
+        Vec3d pos = context.getSource().getPosition();
+        String dimensionName = context.getSource().getWorld().getRegistryKey().getValue().toString();
+        int[] chunkX = {((int) pos.getX() - distance) / 16, ((int) pos.getX() + distance) / 16};
+        int[] chunkY = {((int) pos.getY() - distance) / 16, ((int) pos.getY() + distance) / 16};
+        int[] chunkZ = {((int) pos.getZ() - distance) / 16, ((int) pos.getZ() + distance) / 16};
+
+        ServerWorld world = context.getSource().getWorld();
+
+        List<ThimbleBlockUpdateEvent> foundEvents = new ArrayList<ThimbleBlockUpdateEvent>();
+
+        for (int dx = chunkX[0]; dx < chunkX[1] + 1; dx++) {
+            for (int dy = chunkY[0]; dy < chunkY[1] + 1; dy++) {
+                for (int dz = chunkZ[0]; dz < chunkZ[1] + 1; dz++) {
+                    foundEvents.addAll(getBlockUpdateEventsFromFile(pos, dx, dy, dz, distance, dimensionName));
+                }
+            }
+        }
+
+        return foundEvents;
+    }
 
     private static List<ThimbleBlockUpdateEvent> getBlockUpdateEventsFromFile(Vec3d originPos, int chunkX, int chunkY, int chunkZ, int distance, String dimensionName) {
         return getBlockUpdateEventsFromFile(originPos, chunkX, chunkY, chunkZ, distance, dimensionName, null, ThimbleSubType.ALL);

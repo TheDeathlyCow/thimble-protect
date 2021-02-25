@@ -12,7 +12,7 @@ import java.io.IOException;
 
 public abstract class ThimbleEvent {
 
-    public boolean rollbedBack;
+    public boolean rolledBack;
     protected String causingEntity;
     protected String entityName;
     protected BlockPos pos;
@@ -32,7 +32,7 @@ public abstract class ThimbleEvent {
         this.dimension = dimension;
         this.id = generateID();
         this.time = time;
-        this.rollbedBack = false;
+        this.rolledBack = false;
         this.type = type;
     }
 
@@ -43,7 +43,7 @@ public abstract class ThimbleEvent {
         this.causingEntity = causingEntity;
         this.time = time;
         this.type = type;
-        this.rollbedBack = rolledBack;
+        this.rolledBack = rolledBack;
     }
 
     /**
