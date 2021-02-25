@@ -5,6 +5,7 @@ import com.google.gson.reflect.TypeToken;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.Registry;
 
@@ -62,17 +63,24 @@ public class ThimbleBlockUpdateEventSerializer implements JsonSerializer<Thimble
         ThimbleBlockUpdateEvent newEvent = new ThimbleBlockUpdateEvent(uuid, pos, dimensionName, time, subType);
 
 //        newEvent.setPostState();
-        System.out.println(object.get("postState"));
-        newEvent.setPostState(Blocks.PINK_CONCRETE.getDefaultState());
-        newEvent.setPreState(Blocks.PURPLE_CONCRETE.getDefaultState());
+
+        BlockState tst = getBlockStateFromString(object.get("postState").toString());
+
+        newEvent.setPostState(getBlockStateFromString(object.get("postState").toString()));
+        newEvent.setPreState(getBlockStateFromString(object.get("preState").toString()));
         return newEvent;
     }
 
-//    private static BlockState getBlockStateFromString(String state) {
-//
-//        Block block = Registry.BLOCK.getId()
-//
-//
-//
-//    }
+    private static BlockState getBlockStateFromString(String stateString) {
+
+        int IDstart = stateString.indexOf('{') + 1;
+        int IDend = stateString.indexOf('}');
+        Block block = Registry.BLOCK.get(Identifier.tryParse(stateString.substring(IDstart, IDend)));
+
+        int stateStart = stateString.indexOf('[') + 1;
+        int stateEnd = stateString.indexOf(']');
+
+
+        return block.getDefaultState();
+    }
 }
