@@ -15,6 +15,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
+import net.minecraft.util.math.Position;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
@@ -27,6 +28,7 @@ import java.util.Scanner;
 import java.util.UUID;
 
 import static com.github.thedeathlycow.thimbleprotect.ThimbleEventLogger.EventList;
+import static com.github.thedeathlycow.thimbleprotect.events.ThimbleBlockUpdateEvent.ThimbleSubType;
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
 
@@ -56,6 +58,8 @@ public class ThimbleProtectCommand {
         });
     }
 
+    // * Methods for individual commands * //
+
     public static int reloadConfig(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         String outputString = "";
         try {
@@ -71,44 +75,6 @@ public class ThimbleProtectCommand {
         return 1;
     }
 
-    private static List<ThimbleBlockUpdateEvent> getBlockUpdateEventsFromFile(int posX, int posY, int posZ, String dimensionName) {
-
-        List<ThimbleBlockUpdateEvent> events = new ArrayList<ThimbleBlockUpdateEvent>();
-        String[] dimension = dimensionName.split(":");
-        String filename = "thimble/events/";
-
-        try {
-            filename += dimension[0] + "/" + dimension[1] + "/";
-        } catch (IndexOutOfBoundsException e) {
-            filename = "thimble/events/" + dimensionName + "/";
-        }
-
-        filename += String.format("r%s,%s/c%s,%s,%s.thimble", posX / 32, posZ / 32, posX, posY, posZ);
-
-        Scanner inFile = null;
-        try {
-            inFile = new Scanner(new File(filename));
-        } catch (FileNotFoundException e) {
-            return events;
-        }
-
-        Gson gson = new GsonBuilder()
-                .registerTypeAdapter(ThimbleBlockUpdateEvent.class, new ThimbleBlockUpdateEventSerializer())
-                .create();
-
-        while (inFile.hasNextLine()) {
-            numChecked++;
-            String line = inFile.nextLine();
-            ThimbleBlockUpdateEvent currEvent = gson.fromJson(line, ThimbleBlockUpdateEvent.class);
-//            if (currEvent.getPos().equals(new BlockPos(posX, posY, posZ)))
-            events.add(currEvent);
-        }
-
-        inFile.close();
-
-        return events;
-    }
-
     public static int lookup(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
 
         numChecked = 0;
@@ -116,20 +82,20 @@ public class ThimbleProtectCommand {
         int distance = context.getArgument(distanceName, Integer.class);
         Vec3d pos = context.getSource().getPosition();
         String dimensionName = context.getSource().getWorld().getRegistryKey().getValue().toString();
-        int posX = ((int) pos.getX()) / 16;
-        int posY = ((int) pos.getY()) / 16;
-        int posZ = ((int) pos.getZ()) / 16;
+        int chunkX = ((int) pos.getX()) / 16;
+        int chunkY = ((int) pos.getY()) / 16;
+        int chunkZ = ((int) pos.getZ()) / 16;
 
         String message = " --- ThimbleProtect Lookup ---\n";
         int howManyFound = 0;
 
         ServerWorld world = context.getSource().getWorld();
 
-        for (int dx = (posX - distance); dx < (posX + distance); dx++) {
-            for (int dy = (posY - distance); dy < (posY + distance); dy++) {
-                for (int dz = (posZ - distance); dz < (posZ + distance); dz++) {
+        for (int dx = (chunkX - distance); dx < (chunkX + distance); dx++) {
+            for (int dy = (chunkY - distance); dy < (chunkY + distance); dy++) {
+                for (int dz = (chunkZ - distance); dz < (chunkZ + distance); dz++) {
 
-                    List<ThimbleBlockUpdateEvent> foundEvents = getBlockUpdateEventsFromFile(dx, dy, dz, dimensionName);
+                    List<ThimbleBlockUpdateEvent> foundEvents = getBlockUpdateEventsFromFile(pos, dx, dy, dz, distance, dimensionName);
                     howManyFound += foundEvents.size();
                     for (ThimbleBlockUpdateEvent event : foundEvents) {
                         String name = event.getCausingEntity();
@@ -200,4 +166,65 @@ public class ThimbleProtectCommand {
         ThimbleEventLogger.saveEventsToFile();
         return 1;
     }
+
+
+    // * Start Helper Methods * //
+
+    private static List<ThimbleBlockUpdateEvent> getBlockUpdateEventsFromFile(Vec3d originPos, int chunkX, int chunkY, int chunkZ, int distance, String dimensionName) {
+        return getBlockUpdateEventsFromFile(originPos, chunkX, chunkY, chunkZ, distance, dimensionName, null, ThimbleSubType.ALL);
+    }
+
+    private static List<ThimbleBlockUpdateEvent> getBlockUpdateEventsFromFile(Vec3d originPos, int chunkX, int chunkY, int chunkZ, int distance, String dimensionName, String playerName, ThimbleSubType subtype) {
+
+        List<ThimbleBlockUpdateEvent> events = new ArrayList<ThimbleBlockUpdateEvent>();
+        String[] dimension = dimensionName.split(":");
+        String filename = "thimble/events/";
+
+        try {
+            filename += dimension[0] + "/" + dimension[1] + "/";
+        } catch (IndexOutOfBoundsException e) {
+            filename = "thimble/events/" + dimensionName + "/";
+        }
+
+        filename += String.format("r%s,%s/c%s,%s,%s.thimble", chunkX / 32, chunkZ / 32, chunkX, chunkY, chunkZ);
+
+        Scanner inFile = null;
+        try {
+            inFile = new Scanner(new File(filename));
+        } catch (FileNotFoundException e) {
+            return events;
+        }
+
+        Gson gson = new GsonBuilder()
+                .registerTypeAdapter(ThimbleBlockUpdateEvent.class, new ThimbleBlockUpdateEventSerializer())
+                .create();
+        while (inFile.hasNextLine()) {
+            numChecked++;
+            String line = inFile.nextLine();
+            ThimbleBlockUpdateEvent currEvent = gson.fromJson(line, ThimbleBlockUpdateEvent.class);
+
+            if (meetsLookupRequirements(currEvent, originPos, distance, playerName, subtype)) {
+                events.add(currEvent);
+            }
+        }
+
+        inFile.close();
+
+        return events;
+    }
+
+    private static boolean meetsLookupRequirements(ThimbleBlockUpdateEvent event, Vec3d originPos, int distance, String playerName, ThimbleSubType subType) {
+        if (originPos.isInRange((Position) event.getPos(), distance)) {
+            if (playerName != null) {
+                return playerName.equals(event.getCausingEntity()) &&
+                        (subType == ThimbleSubType.ALL || subType == event.getSubType());
+            } else if (subType != ThimbleSubType.ALL) {
+                return subType == event.getSubType();
+            } else {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }

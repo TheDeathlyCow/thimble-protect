@@ -88,6 +88,10 @@ public abstract class ThimbleEvent {
         return couldRestore;
     }
 
+    public boolean isWithinDistance(BlockPos pos, int range) {
+        return this.getPos().isWithinDistance(pos, range);
+    }
+
 
     // * ====== START GETTER METHODS ====== * //
 

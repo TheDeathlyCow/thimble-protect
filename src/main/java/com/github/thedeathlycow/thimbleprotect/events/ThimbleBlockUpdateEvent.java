@@ -27,7 +27,8 @@ public class ThimbleBlockUpdateEvent extends ThimbleEvent {
     public enum ThimbleSubType {
         BLOCK_PLACE,
         BLOCK_BREAK,
-        EXPLOSION
+        EXPLOSION,
+        ALL
     }
 
     /**
