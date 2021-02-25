@@ -2,7 +2,11 @@ package com.github.thedeathlycow.thimbleprotect.events;
 
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.registry.Registry;
 
 import java.io.File;
 import java.io.IOException;
@@ -54,6 +58,21 @@ public class ThimbleBlockUpdateEventSerializer implements JsonSerializer<Thimble
 
         String dimensionName = object.get("dimension").getAsString();
 
-        return new ThimbleBlockUpdateEvent(uuid, pos, dimensionName, time, subType);
+
+        ThimbleBlockUpdateEvent newEvent = new ThimbleBlockUpdateEvent(uuid, pos, dimensionName, time, subType);
+
+//        newEvent.setPostState();
+        System.out.println(object.get("postState"));
+        newEvent.setPostState(Blocks.PINK_CONCRETE.getDefaultState());
+        newEvent.setPreState(Blocks.PURPLE_CONCRETE.getDefaultState());
+        return newEvent;
     }
+
+//    private static BlockState getBlockStateFromString(String state) {
+//
+//        Block block = Registry.BLOCK.getId()
+//
+//
+//
+//    }
 }

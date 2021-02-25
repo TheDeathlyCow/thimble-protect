@@ -15,7 +15,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
-import net.minecraft.util.math.Position;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
@@ -34,7 +33,7 @@ import static net.minecraft.server.command.CommandManager.literal;
 
 public class ThimbleProtectCommand {
 
-    private static String distanceName = "distance (in chunks)";
+    private static String distanceName = "distance";
     private static int numChecked = 0;
 
     public static void registerCommand() {
@@ -85,36 +84,37 @@ public class ThimbleProtectCommand {
         int chunkX = ((int) pos.getX()) / 16;
         int chunkY = ((int) pos.getY()) / 16;
         int chunkZ = ((int) pos.getZ()) / 16;
+        int lookupDistance = distance/16;
 
-        String message = " --- ThimbleProtect Lookup ---\n";
+        StringBuilder message = new StringBuilder(" --- ThimbleProtect Lookup ---");
         int howManyFound = 0;
 
         ServerWorld world = context.getSource().getWorld();
 
-        for (int dx = (chunkX - distance); dx < (chunkX + distance); dx++) {
-            for (int dy = (chunkY - distance); dy < (chunkY + distance); dy++) {
-                for (int dz = (chunkZ - distance); dz < (chunkZ + distance); dz++) {
-
+        for (int dx = (chunkX - lookupDistance); dx < (chunkX + lookupDistance); dx++) {
+            for (int dy = (chunkY - lookupDistance); dy < (chunkY + lookupDistance); dy++) {
+                for (int dz = (chunkZ - lookupDistance); dz < (chunkZ + lookupDistance); dz++) {
                     List<ThimbleBlockUpdateEvent> foundEvents = getBlockUpdateEventsFromFile(pos, dx, dy, dz, distance, dimensionName);
                     howManyFound += foundEvents.size();
+
                     for (ThimbleBlockUpdateEvent event : foundEvents) {
+
                         String name = event.getCausingEntity();
                         Entity causingEntity = world.getEntity(UUID.fromString(name));
-
                         if (causingEntity != null) {
-                            name = causingEntity.getEntityName();
+                            name = causingEntity.getName().asString();
                         }
 
-                        message += "\n" + name + " " + event.getPos().toString() + " " + event.getDimension() + " " + event.getTime()
-                                + " " + event.getSubType();
+                        message.append("\n ").append(event.toNeatString(name));
                     }
+
                 }
             }
         }
 
-        message += "\nFound " + howManyFound + " event(s)...";
+        message.append("\nFound ").append(howManyFound).append(" event(s)...");
 
-        context.getSource().sendFeedback(new LiteralText(message), false);
+        context.getSource().sendFeedback(new LiteralText(message.toString()), false);
         context.getSource().sendFeedback(new LiteralText("Checked " + numChecked + " blocks..."), false);
         return 1;
     }
@@ -214,7 +214,7 @@ public class ThimbleProtectCommand {
     }
 
     private static boolean meetsLookupRequirements(ThimbleBlockUpdateEvent event, Vec3d originPos, int distance, String playerName, ThimbleSubType subType) {
-        if (originPos.isInRange((Position) event.getPos(), distance)) {
+        if (originPos.isInRange(new Vec3d(event.getPos().getX(), event.getPos().getY(), event.getPos().getZ()), distance)) {
             if (playerName != null) {
                 return playerName.equals(event.getCausingEntity()) &&
                         (subType == ThimbleSubType.ALL || subType == event.getSubType());

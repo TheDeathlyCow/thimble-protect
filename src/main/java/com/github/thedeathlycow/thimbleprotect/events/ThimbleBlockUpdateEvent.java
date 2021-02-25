@@ -1,39 +1,28 @@
 package com.github.thedeathlycow.thimbleprotect.events;
 
 import com.github.thedeathlycow.thimbleprotect.ThimbleProtect;
-import com.google.gson.*;
-import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
-import net.minecraft.world.dimension.DimensionType;
 
-import java.io.*;
-import java.lang.reflect.Type;
-import java.util.List;
-import java.util.Map;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 
 public class ThimbleBlockUpdateEvent extends ThimbleEvent {
 
     public static final String NULL_ENTITY_STRING = "#entity";
+    public static final String BASE_FILE_PATH = "thimble/events/";
     protected BlockState preState;
     protected BlockState postState;
     protected ThimbleSubType subType;
 
-    public static final String BASE_FILE_PATH = "thimble/events/";
-
-    public enum ThimbleSubType {
-        BLOCK_PLACE,
-        BLOCK_BREAK,
-        EXPLOSION,
-        ALL
-    }
-
     /**
      * Create a ThimbleBlockUpdateEvent with a causing entity.
-     *
      */
     public ThimbleBlockUpdateEvent(String causingEntity, BlockPos pos, String dimension, long time, ThimbleSubType subtype) {
         super(causingEntity, pos, dimension, time, ThimbleType.BLOCK_UPDATE);
@@ -47,7 +36,6 @@ public class ThimbleBlockUpdateEvent extends ThimbleEvent {
         super(causingEntity, time, ThimbleType.BLOCK_UPDATE, rolledBack);
         this.subType = subType;
     }
-
 
     public boolean restore(World world) {
         if (this.rollbedBack) {
@@ -79,7 +67,7 @@ public class ThimbleBlockUpdateEvent extends ThimbleEvent {
         try {
             String filename = this.genParentDirectory(posX, posY, posZ);
             fileWriter = new FileWriter(filename, true);
-        } catch(FileNotFoundException e) {
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
         } finally {
 
@@ -93,6 +81,7 @@ public class ThimbleBlockUpdateEvent extends ThimbleEvent {
                 fileWriter.write(serialised + "\n");
                 fileWriter.close();
             }
+
         }
     }
 
@@ -103,7 +92,7 @@ public class ThimbleBlockUpdateEvent extends ThimbleEvent {
             directoryPath = BASE_FILE_PATH + this.getDimension().split(":")[0]
                     + "/" + this.getDimension().split(":")[1]
                     + "/" + "r" + posX / 512 + "," + posZ / 512;
-        } catch(IndexOutOfBoundsException e) {
+        } catch (IndexOutOfBoundsException e) {
             ThimbleProtect.Print("ERROR - Dimenion name has no namespace!");
             directoryPath = BASE_FILE_PATH + this.getDimension().split(":")[0]
                     + "/" + "r" + posX / 512 + "," + posZ / 512;
@@ -119,16 +108,48 @@ public class ThimbleBlockUpdateEvent extends ThimbleEvent {
 
     @Override
     public String toString() {
-        return "";
+        return this.causingEntity + " " + this.getPos().toString() + " " + this.getDimension() + " " + this.getTime()
+                + " " + this.getSubType();
     }
 
-    // * ====== START GETTER METHODS ====== * //
+    public String toNeatString() {
+        return this.toNeatString(this.causingEntity);
+    }
+
+    public String toNeatString(String name) {
+        StringBuilder neat = new StringBuilder(this.getPos().getX() + ", " + this.getPos().getY() + ", " + this.getPos().getZ() + ": ");
+        neat.append(name).append(" ");
+        String verb = "";
+        switch(this.getSubType()) {
+            case BLOCK_BREAK:
+                verb = "broke " + Registry.BLOCK.getId(this.getPreState().getBlock());
+                break;
+            case BLOCK_PLACE:
+                verb = "placed " + Registry.BLOCK.getId(this.getPostState().getBlock());
+                break;
+            case EXPLOSION:
+                verb = "blew up " + Registry.BLOCK.getId(this.getPostState().getBlock());
+                break;
+            default:
+                verb = "changed " + Registry.BLOCK.getId(this.getPostState().getBlock());
+                break;
+        }
+        neat.append(verb);
+
+        return neat.toString();
+    }
 
     /**
      * Gets the state of the block after the event.
      */
     public BlockState getPostState() {
         return this.postState;
+    }
+
+    // * ====== START GETTER METHODS ====== * //
+
+    public void setPostState(BlockState postState) {
+        this.postState = postState;
     }
 
     /**
@@ -138,22 +159,25 @@ public class ThimbleBlockUpdateEvent extends ThimbleEvent {
         return this.preState;
     }
 
-    public ThimbleSubType getSubType() {
-        return this.subType;
-    }
-
-    // * ====== START SETTER METHODS ====== * //
-
     public void setPreState(BlockState preState) {
         this.preState = preState;
     }
 
-    public void setPostState(BlockState postState) {
-        this.postState = postState;
+    // * ====== START SETTER METHODS ====== * //
+
+    public ThimbleSubType getSubType() {
+        return this.subType;
     }
 
     public void setRolledBack(boolean rolledBack) {
         this.rollbedBack = rolledBack;
+    }
+
+    public enum ThimbleSubType {
+        BLOCK_PLACE,
+        BLOCK_BREAK,
+        EXPLOSION,
+        ALL
     }
 
 }

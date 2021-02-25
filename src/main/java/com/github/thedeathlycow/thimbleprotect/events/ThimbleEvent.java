@@ -14,6 +14,7 @@ public abstract class ThimbleEvent {
 
     public boolean rollbedBack;
     protected String causingEntity;
+    protected String entityName;
     protected BlockPos pos;
     protected int id;
     protected long time;
