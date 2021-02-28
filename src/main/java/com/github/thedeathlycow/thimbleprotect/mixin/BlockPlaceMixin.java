@@ -1,7 +1,6 @@
 package com.github.thedeathlycow.thimbleprotect.mixin;
 
 import com.github.thedeathlycow.thimbleprotect.ThimbleProtect;
-import com.github.thedeathlycow.thimbleprotect.events.ThimbleBlockPlaceEvent;
 import com.github.thedeathlycow.thimbleprotect.events.ThimbleBlockUpdateEvent;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
@@ -9,7 +8,6 @@ import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraft.world.dimension.DimensionType;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -17,7 +15,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.io.IOException;
 import java.time.Instant;
 
 @Mixin(BlockItem.class)

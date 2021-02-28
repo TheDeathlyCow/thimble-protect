@@ -2,8 +2,6 @@ package com.github.thedeathlycow.thimbleprotect.mixin;
 
 import com.github.thedeathlycow.thimbleprotect.ThimbleProtect;
 import com.github.thedeathlycow.thimbleprotect.events.ThimbleBlockUpdateEvent;
-import com.github.thedeathlycow.thimbleprotect.events.ThimbleEvent;
-import com.github.thedeathlycow.thimbleprotect.events.ThimbleExplosionEvent;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
@@ -19,7 +17,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.io.IOException;
 import java.time.Instant;
 import java.util.List;
 
@@ -37,7 +34,9 @@ public abstract class ExplosionMixin {
     @Shadow
     public abstract List<BlockPos> getAffectedBlocks();
 
-    @Shadow @Nullable public abstract LivingEntity getCausingEntity();
+    @Shadow
+    @Nullable
+    public abstract LivingEntity getCausingEntity();
 
     @Inject(at = @At("HEAD"), method = "affectWorld")
     public void affectWorld(boolean bl, CallbackInfo ci) {

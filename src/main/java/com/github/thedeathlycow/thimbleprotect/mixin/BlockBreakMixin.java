@@ -1,8 +1,6 @@
 package com.github.thedeathlycow.thimbleprotect.mixin;
 
-import com.github.thedeathlycow.thimbleprotect.ThimbleConfig;
 import com.github.thedeathlycow.thimbleprotect.ThimbleProtect;
-import com.github.thedeathlycow.thimbleprotect.events.ThimbleBlockBreakEvent;
 import com.github.thedeathlycow.thimbleprotect.events.ThimbleBlockUpdateEvent;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -15,7 +13,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.io.IOException;
 import java.time.Instant;
 
 @Mixin(Block.class)
