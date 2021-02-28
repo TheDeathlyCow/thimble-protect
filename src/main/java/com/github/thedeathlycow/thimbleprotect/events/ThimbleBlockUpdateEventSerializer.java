@@ -16,7 +16,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.lang.reflect.Type;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import static com.github.thedeathlycow.thimbleprotect.events.ThimbleBlockUpdateEvent.ThimbleSubType;
 
@@ -29,67 +28,7 @@ public class ThimbleBlockUpdateEventSerializer implements JsonSerializer<Thimble
     final Type objectType = new TypeToken<Map<String, Object>>() {
     }.getType();
 
-    private static Map<String, String> getPropertiesMap(BlockState state) {
-//        String stateString = state.toString();
-//        int startIndex = stateString.indexOf('[');
-//        int stopIndex = stateString.indexOf(']');
-//
-//        if (startIndex == -1) {
-//            return new LinkedHashMap<>();
-//        }
-//
-//        String[] properties = stateString.substring(startIndex + 1, stopIndex).split(",");
-//
-//
-//        for (String property : properties) {
-//            String[] propertyArray = property.split("=");
-//            stateMap.put(propertyArray[0], propertyArray[1]);
-//        }
-
-        Map<String, String> stateMap = new LinkedHashMap<>();
-
-        for (Map.Entry<Property<?>, Comparable<?>> entry : state.getEntries().entrySet()) {
-            Pair<String, String> value = Pair.of(entry.getKey().getName(), Util.getValueAsString(entry.getKey(), entry.getValue()));
-            stateMap.put(value.getLeft(), value.getRight());
-        }
-
-        return stateMap;
-    }
-
-    /**
-     * Thanks to kegare on civa.jp for writing a BlockState deserializer for 1.15.
-     *
-     * @author kegare
-     */
-    private BlockState getStateFromJson(JsonObject stateObject) {
-
-        String blockID = stateObject.get("block").getAsString();
-        JsonObject propertiesObject = stateObject.get("properties").getAsJsonObject();
-        BlockState state = Registry.BLOCK.get(new Identifier(blockID)).getDefaultState();
-
-        if (state == null || state == Blocks.AIR.getDefaultState()) {
-            return state;
-        }
-
-        StateManager<Block, BlockState> manager = state.getBlock().getStateManager();
-
-        for (Map.Entry<String, JsonElement> entry : propertiesObject.entrySet()) {
-            String key = entry.getKey();
-            Property<?> property = manager.getProperty(key);
-
-            if (property != null) {
-                String value = entry.getValue().getAsString();
-                state = modifyState(state, property, value);
-            }
-        }
-        return state;
-    }
-
-    private static <T extends Comparable<T>> BlockState modifyState(BlockState state, Property<T> property, String name) {
-        return (BlockState)property.parse(name).map((value) -> {
-            return (BlockState)state.with(property, value);
-        }).orElse(state);
-    }
+     // * SERIALIZER AND DESERIALIZER * //
 
     @Override
     public JsonElement serialize(ThimbleBlockUpdateEvent event, Type typeOfSrc, JsonSerializationContext context) {
@@ -146,5 +85,61 @@ public class ThimbleBlockUpdateEventSerializer implements JsonSerializer<Thimble
         return newEvent;
     }
 
+    // * HELPER METHODS * //
+    
+    private static Map<String, String> getPropertiesMap(BlockState state) {
+        Map<String, String> stateMap = new LinkedHashMap<>();
+
+        for (Map.Entry<Property<?>, Comparable<?>> entry : state.getEntries().entrySet()) {
+            Pair<String, String> value = Pair.of(entry.getKey().getName(), Util.getValueAsString(entry.getKey(), entry.getValue()));
+            stateMap.put(value.getLeft(), value.getRight());
+        }
+
+        return stateMap;
+    }
+
+    /**
+     * A mini blockState deserializer. Accepts a JSON object parameter
+     * and returns a block state with the correct ID and properties.
+     * <p>
+     * Based on a deserializer written by kegare for Forge 1.15,
+     * and adapted to work with Fabric 1.16.
+     *
+     * @author kegare, TheDeathlyCow
+     * @param stateObject A JSON object of a block state. must have elements
+     *                    "block" which is a string and "properties" which is
+     *                    another JSON object containing valid properties
+     *                    for that block.
+     * @return BlockState
+     */
+    private BlockState getStateFromJson(JsonObject stateObject) {
+
+        String blockID = stateObject.get("block").getAsString();
+        JsonObject propertiesObject = stateObject.get("properties").getAsJsonObject();
+        BlockState state = Registry.BLOCK.get(new Identifier(blockID)).getDefaultState();
+
+        if (state == null || state == Blocks.AIR.getDefaultState()) {
+            return state;
+        }
+
+        StateManager<Block, BlockState> manager = state.getBlock().getStateManager();
+
+        for (Map.Entry<String, JsonElement> entry : propertiesObject.entrySet()) {
+            String key = entry.getKey();
+            Property<?> property = manager.getProperty(key);
+
+            if (property != null) {
+                String value = entry.getValue().getAsString();
+                state = modifyState(state, property, value);
+            }
+        }
+        return state;
+    }
+
+    private static <T extends Comparable<T>> BlockState modifyState(BlockState state, Property<T> property, String name) {
+        return (BlockState) property.parse(name).map((value) -> {
+            return (BlockState) state.with(property, value);
+        }).orElse(state);
+    }
 
 }
