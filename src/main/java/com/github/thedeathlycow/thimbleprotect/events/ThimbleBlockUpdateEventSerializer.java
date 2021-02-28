@@ -86,7 +86,7 @@ public class ThimbleBlockUpdateEventSerializer implements JsonSerializer<Thimble
     }
 
     // * HELPER METHODS * //
-    
+
     private static Map<String, String> getPropertiesMap(BlockState state) {
         Map<String, String> stateMap = new LinkedHashMap<>();
 
@@ -137,9 +137,7 @@ public class ThimbleBlockUpdateEventSerializer implements JsonSerializer<Thimble
     }
 
     private static <T extends Comparable<T>> BlockState modifyState(BlockState state, Property<T> property, String name) {
-        return (BlockState) property.parse(name).map((value) -> {
-            return (BlockState) state.with(property, value);
-        }).orElse(state);
+        return property.parse(name).map((value) -> state.with(property, value)).orElse(state);
     }
 
 }
