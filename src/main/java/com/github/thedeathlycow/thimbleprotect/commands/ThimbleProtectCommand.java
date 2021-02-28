@@ -7,15 +7,20 @@ import com.github.thedeathlycow.thimbleprotect.events.ThimbleBlockUpdateEventSer
 import com.github.thedeathlycow.thimbleprotect.events.ThimbleEvent;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
-import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.serialization.JsonOps;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.*;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.MutableText;
+import net.minecraft.text.Style;
+import net.minecraft.text.TextColor;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
@@ -96,7 +101,7 @@ public class ThimbleProtectCommand {
             message.append(event.toText(name)).append("\n");
         }
 
-        message.append("Found ").append( "" + foundBlockUpdateEvents.size() ).append(" event(s)...");
+        message.append("Found ").append("" + foundBlockUpdateEvents.size()).append(" event(s)...");
 
         context.getSource().sendFeedback(message, false);
         context.getSource().sendFeedback(new LiteralText("Checked " + numChecked + " events..."), false);
@@ -211,7 +216,7 @@ public class ThimbleProtectCommand {
         while (inFile.hasNextLine()) {
             numChecked++;
             String line = inFile.nextLine();
-            ThimbleBlockUpdateEvent currEvent = gson.fromJson(line, ThimbleBlockUpdateEvent.class);
+            ThimbleBlockUpdateEvent currEvent = ThimbleBlockUpdateEventSerializer.GSON.fromJson(line, ThimbleBlockUpdateEvent.class);
 
             if (meetsLookupRequirements(currEvent, originPos, distance, playerName, subtype)) {
                 events.add(currEvent);

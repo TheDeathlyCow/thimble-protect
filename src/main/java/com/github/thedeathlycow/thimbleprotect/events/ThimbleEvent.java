@@ -1,13 +1,9 @@
 package com.github.thedeathlycow.thimbleprotect.events;
 
 import com.github.thedeathlycow.thimbleprotect.ThimbleEventLogger;
-import com.google.gson.*;
-import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraft.world.dimension.DimensionType;
 
-import java.io.FileWriter;
 import java.io.IOException;
 
 public abstract class ThimbleEvent {
@@ -16,21 +12,14 @@ public abstract class ThimbleEvent {
     protected String causingEntity;
     protected String entityName;
     protected BlockPos pos;
-    protected int id;
     protected long time;
     protected String dimension;
     protected ThimbleType type;
-
-    public enum ThimbleType {
-        BLOCK_UPDATE,
-        INTERACT
-    }
 
     public ThimbleEvent(String causingEntity, BlockPos pos, String dimension, long time, ThimbleType type) {
         this.causingEntity = causingEntity;
         this.pos = pos;
         this.dimension = dimension;
-        this.id = generateID();
         this.time = time;
         this.rolledBack = false;
         this.type = type;
@@ -46,14 +35,9 @@ public abstract class ThimbleEvent {
         this.rolledBack = rolledBack;
     }
 
-    /**
-     * TODO: Should return the ordinal number of the event in the database.
-     */
-    private int generateID() {
-        return 0;
-    }
-
     public abstract void addToLog() throws IOException;
+
+    public abstract boolean restore(World world);
 //    {
 //        try {
 //            int posX = this.getPos().getX();
@@ -77,8 +61,6 @@ public abstract class ThimbleEvent {
 //        }
 //    }
 
-    public abstract boolean restore(World world);
-
     public abstract boolean rollback(World world);
 
     public boolean rollback(World world, boolean deleteEvent) {
@@ -93,11 +75,15 @@ public abstract class ThimbleEvent {
         return this.getPos().isWithinDistance(pos, range);
     }
 
+    public String getDimension() {
+        return dimension;
+    }
+
 
     // * ====== START GETTER METHODS ====== * //
 
-    public String getDimension() {
-        return dimension;
+    public boolean isRolledBack() {
+        return this.rolledBack;
     }
 
     public BlockPos getPos() {
@@ -117,6 +103,11 @@ public abstract class ThimbleEvent {
 
     public ThimbleType getType() {
         return this.type;
+    }
+
+    public enum ThimbleType {
+        BLOCK_UPDATE,
+        INTERACT
     }
 
 }
