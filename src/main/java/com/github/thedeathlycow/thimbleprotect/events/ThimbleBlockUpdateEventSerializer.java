@@ -4,13 +4,12 @@ import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
+import net.minecraft.loot.condition.BlockStatePropertyLootCondition;
+import net.minecraft.predicate.StatePredicate;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.Registry;
 
-import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -19,7 +18,42 @@ import static com.github.thedeathlycow.thimbleprotect.events.ThimbleBlockUpdateE
 
 public class ThimbleBlockUpdateEventSerializer implements JsonSerializer<ThimbleBlockUpdateEvent>, JsonDeserializer<ThimbleBlockUpdateEvent> {
 
-    final Type objectType = new TypeToken<Map<String, Object>>() {}.getType();
+    final Type objectType = new TypeToken<Map<String, Object>>() {
+    }.getType();
+
+    private static BlockState getBlockStateFromString(String stateString) {
+
+        int IDstart = stateString.indexOf('{') + 1;
+        int IDend = stateString.indexOf('}');
+        Block block = Registry.BLOCK.get(Identifier.tryParse(stateString.substring(IDstart, IDend)));
+
+        int stateStart = stateString.indexOf('[') + 1;
+        int stateEnd = stateString.indexOf(']');
+
+
+        return block.getDefaultState();
+    }
+
+    private static Map<String, String> getMapFromBlockState(BlockState state) {
+        String stateString = state.toString();
+        int startIndex = stateString.indexOf('[');
+        int stopIndex = stateString.indexOf(']');
+
+        if (startIndex == -1) {
+            return new LinkedHashMap<>();
+        }
+
+        String[] properties = stateString.substring(startIndex + 1, stopIndex).split(",");
+
+        Map<String, String> stateMap = new LinkedHashMap<>();
+
+        for (String property : properties) {
+            String[] propertyArray = property.split("=");
+            stateMap.put(propertyArray[0], propertyArray[1]);
+        }
+
+        return stateMap;
+    }
 
     @Override
     public JsonElement serialize(ThimbleBlockUpdateEvent event, Type typeOfSrc, JsonSerializationContext context) {
@@ -30,8 +64,17 @@ public class ThimbleBlockUpdateEventSerializer implements JsonSerializer<Thimble
         map.put("type", event.getType());
 
         map.put("subType", event.getSubType());
-        map.put("preState", event.getPreState().toString());
-        map.put("postState", event.getPostState().toString());
+
+        Map<String, Object> preStateMap = new LinkedHashMap<>();
+        preStateMap.put("block", Registry.BLOCK.getId(event.getPreState().getBlock()).toString());
+        preStateMap.put("properties", getMapFromBlockState(event.getPreState()));
+
+        Map<String, Object> postStateMap = new LinkedHashMap<>();
+        postStateMap.put("block", Registry.BLOCK.getId(event.getPostState().getBlock()).toString());
+        postStateMap.put("properties", getMapFromBlockState(event.getPostState()));
+
+        map.put("preState", preStateMap);
+        map.put("postState", postStateMap);
 
         map.put("dimension", event.getDimension());
 
@@ -49,7 +92,7 @@ public class ThimbleBlockUpdateEventSerializer implements JsonSerializer<Thimble
         ThimbleSubType subType = ThimbleSubType.BLOCK_BREAK;
         try {
             subType = ThimbleSubType.valueOf(object.get("subType").getAsString());
-        } catch(IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             e.printStackTrace();
         }
 
@@ -59,28 +102,18 @@ public class ThimbleBlockUpdateEventSerializer implements JsonSerializer<Thimble
 
         String dimensionName = object.get("dimension").getAsString();
 
-
         ThimbleBlockUpdateEvent newEvent = new ThimbleBlockUpdateEvent(uuid, pos, dimensionName, time, subType);
 
-//        newEvent.setPostState();
+        BlockStatePropertyLootCondition.Serializer serializer = new BlockStatePropertyLootCondition.Serializer();
 
-        BlockState tst = getBlockStateFromString(object.get("postState").toString());
+//        BlockState tst = getBlockStateFromString(object.get("postState").toString());
+        new BlockStatePropertyLootCondition.Serializer().fromJson(object.get("postState").getAsJsonObject(), context);
 
-        newEvent.setPostState(getBlockStateFromString(object.get("postState").toString()));
+        Block postBlock = Registry.BLOCK.get(new Identifier(object.get("postState").getAsJsonObject().get("block").getAsString()));
+        StatePredicate postBlockState = StatePredicate.fromJson(object.get("postState").getAsJsonObject().get("properties"));
+
+//        newEvent.setPostState( );
         newEvent.setPreState(getBlockStateFromString(object.get("preState").toString()));
         return newEvent;
-    }
-
-    private static BlockState getBlockStateFromString(String stateString) {
-
-        int IDstart = stateString.indexOf('{') + 1;
-        int IDend = stateString.indexOf('}');
-        Block block = Registry.BLOCK.get(Identifier.tryParse(stateString.substring(IDstart, IDend)));
-
-        int stateStart = stateString.indexOf('[') + 1;
-        int stateEnd = stateString.indexOf(']');
-
-
-        return block.getDefaultState();
     }
 }

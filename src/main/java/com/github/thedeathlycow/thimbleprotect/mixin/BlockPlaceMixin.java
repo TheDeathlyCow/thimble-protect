@@ -37,14 +37,12 @@ public abstract class BlockPlaceMixin {
             World world = ctx.getWorld();
             String dimensionName = world.getRegistryKey().getValue().toString();
 
-            ThimbleBlockUpdateEvent event = new ThimbleBlockPlaceEvent(player.getUuidAsString(), pos, dimensionName, Instant.now().getEpochSecond(), preState, postState);
+            ThimbleBlockUpdateEvent event = new ThimbleBlockUpdateEvent(player.getUuidAsString(), pos, dimensionName, Instant.now().getEpochSecond(), ThimbleBlockUpdateEvent.ThimbleSubType.BLOCK_PLACE);
+            event.setPreState(preState);
+            event.setPostState(postState);
 
             if (ThimbleProtect.CONFIG.blockPlace) {
-                try {
-                    event.addToLog();
-                } catch( IOException e ) {
-                    System.out.println("Error writing thimble event to file: " + e);
-                }
+                event.addToLog();
             }
         }
     }

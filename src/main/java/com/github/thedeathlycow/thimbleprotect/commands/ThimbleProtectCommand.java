@@ -195,6 +195,7 @@ public class ThimbleProtectCommand {
             filename = "thimble/events/" + dimensionName + "/";
         }
 
+
         filename += String.format("r%s,%s/c%s,%s,%s.thimble", chunkX / 32, chunkZ / 32, chunkX, chunkY, chunkZ);
 
         Scanner inFile = null;

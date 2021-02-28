@@ -5,7 +5,9 @@ import com.github.thedeathlycow.thimbleprotect.events.ThimbleBlockUpdateEvent;
 import com.github.thedeathlycow.thimbleprotect.events.ThimbleEvent;
 import com.github.thedeathlycow.thimbleprotect.events.ThimbleExplosionEvent;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.explosion.Explosion;
@@ -35,6 +37,8 @@ public abstract class ExplosionMixin {
     @Shadow
     public abstract List<BlockPos> getAffectedBlocks();
 
+    @Shadow @Nullable public abstract LivingEntity getCausingEntity();
+
     @Inject(at = @At("HEAD"), method = "affectWorld")
     public void affectWorld(boolean bl, CallbackInfo ci) {
         List<BlockPos> affectedBlockPositions = this.getAffectedBlocks();
@@ -45,15 +49,13 @@ public abstract class ExplosionMixin {
                 String dimensionName = world.getRegistryKey().getValue().toString();
                 if (!currState.isAir()) {
                     String causingEntity = ThimbleBlockUpdateEvent.NULL_ENTITY_STRING;
-                    if (this.entity != null) {
-                        causingEntity = this.entity.getUuidAsString();
+                    if (this.getCausingEntity() != null) {
+                        causingEntity = this.getCausingEntity().getUuidAsString();
                     }
-                    ThimbleExplosionEvent event = new ThimbleExplosionEvent(causingEntity, currPos, dimensionName, Instant.now().getEpochSecond(), currState);
-                    try {
-                        event.addToLog();
-                    } catch( IOException e ) {
-                        System.out.println("Error writing thimble event to file: " + e);
-                    }
+                    ThimbleBlockUpdateEvent event = new ThimbleBlockUpdateEvent(causingEntity, currPos, dimensionName, Instant.now().getEpochSecond(), ThimbleBlockUpdateEvent.ThimbleSubType.EXPLOSION);
+                    event.setPreState(currState);
+                    event.setPostState(Blocks.AIR.getDefaultState());
+                    event.addToLog();
                 }
             }
         }

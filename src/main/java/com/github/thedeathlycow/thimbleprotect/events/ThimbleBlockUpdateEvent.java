@@ -59,7 +59,7 @@ public class ThimbleBlockUpdateEvent extends ThimbleEvent {
         }
     }
 
-    public void addToLog() throws IOException {
+    public void addToLog() {
 
         FileWriter fileWriter = null;
         String serialised = "";
@@ -69,19 +69,24 @@ public class ThimbleBlockUpdateEvent extends ThimbleEvent {
         try {
             String filename = this.genParentDirectory(posX, posY, posZ);
             fileWriter = new FileWriter(filename, true);
-        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         } finally {
 
             GsonBuilder gsonBuilder = new GsonBuilder()
-                    .registerTypeHierarchyAdapter(ThimbleBlockUpdateEvent.class, new ThimbleBlockUpdateEventSerializer());
+                    .registerTypeHierarchyAdapter(ThimbleBlockUpdateEvent.class, new ThimbleBlockUpdateEventSerializer())
+                    .disableHtmlEscaping();
             Gson eventGson = gsonBuilder.create();
 
             serialised = eventGson.toJson(this);
 
-            if (fileWriter != null) {
-                fileWriter.write(serialised + "\n");
-                fileWriter.close();
+            try {
+                if (fileWriter != null) {
+                    fileWriter.write(serialised + "\n");
+                    fileWriter.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
 
         }
