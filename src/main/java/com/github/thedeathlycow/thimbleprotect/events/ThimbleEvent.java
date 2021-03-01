@@ -29,8 +29,10 @@ public abstract class ThimbleEvent {
     /**
      * This consturctor should <b>ONLY</b> be called when reading from a JSON file.
      */
-    public ThimbleEvent(String causingEntity, long time, ThimbleType type, boolean rolledBack) {
+    public ThimbleEvent(String causingEntity, BlockPos pos, String dimension, long time, ThimbleType type, boolean rolledBack) {
         this.causingEntity = causingEntity;
+        this.pos = pos;
+        this.dimension = dimension;
         this.time = time;
         this.type = type;
         this.rolledBack = rolledBack;
@@ -63,6 +65,10 @@ public abstract class ThimbleEvent {
 //    }
 
     public abstract boolean rollback(World world);
+
+    public void updateRollBack() {
+        this.rolledBack = !this.rolledBack;
+    }
 
     public boolean rollback(World world, boolean deleteEvent) {
         boolean couldRestore = this.rollback(world);

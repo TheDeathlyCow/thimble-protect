@@ -40,6 +40,8 @@ public class ThimbleBlockUpdateEventSerializer implements JsonSerializer<Thimble
         map.put("type", event.getType());
         map.put("subType", event.getSubType());
 
+        map.put("rolledBack", event.isRolledBack());
+
         Map<String, Object> preStateMap = new LinkedHashMap<>();
         preStateMap.put("block", Registry.BLOCK.getId(event.getPreState().getBlock()).toString());
         preStateMap.put("properties", getPropertiesMap(event.getPreState()));
@@ -76,8 +78,9 @@ public class ThimbleBlockUpdateEventSerializer implements JsonSerializer<Thimble
                 object.get("position").getAsJsonObject().get("z").getAsInt());
 
         String dimensionName = object.get("dimension").getAsString();
+        boolean rolledBack = object.get("rolledBack").getAsBoolean();
 
-        ThimbleBlockUpdateEvent newEvent = new ThimbleBlockUpdateEvent(uuid, pos, dimensionName, time, subType);
+        ThimbleBlockUpdateEvent newEvent = new ThimbleBlockUpdateEvent(uuid, pos, dimensionName, time, subType, rolledBack);
 
         newEvent.setPreState(getStateFromJson(object.get("preState").getAsJsonObject()));
         newEvent.setPostState(getStateFromJson(object.get("postState").getAsJsonObject()));
@@ -117,11 +120,11 @@ public class ThimbleBlockUpdateEventSerializer implements JsonSerializer<Thimble
         String blockID = stateObject.get("block").getAsString();
         JsonObject propertiesObject = stateObject.get("properties").getAsJsonObject();
         BlockState state = Registry.BLOCK.get(new Identifier(blockID)).getDefaultState();
-
-        if (state == Blocks.AIR.getDefaultState() || state == null) {
+        
+        if (state == null) {
             return Blocks.AIR.getDefaultState();
         }
-        if (propertiesObject == null) {
+        if (state == Blocks.AIR.getDefaultState() || propertiesObject == null) {
             return state;
         }
 

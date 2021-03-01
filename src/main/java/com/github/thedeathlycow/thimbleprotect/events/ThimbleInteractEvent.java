@@ -1,6 +1,8 @@
 package com.github.thedeathlycow.thimbleprotect.events;
 
 import net.minecraft.block.Block;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -47,5 +49,10 @@ public class ThimbleInteractEvent extends ThimbleEvent {
     public boolean rollback(World world) {
         this.rolledBack = true;
         return false;
+    }
+
+    @Override
+    public Text toText() {
+        return new LiteralText("hi");
     }
 }

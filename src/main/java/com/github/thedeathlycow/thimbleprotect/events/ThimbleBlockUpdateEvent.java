@@ -32,8 +32,8 @@ public class ThimbleBlockUpdateEvent extends ThimbleEvent {
     /**
      * This consturctor should <b>ONLY</b> be called when reading from a JSON file.
      */
-    public ThimbleBlockUpdateEvent(String causingEntity, long time, ThimbleSubType subType, boolean rolledBack) {
-        super(causingEntity, time, ThimbleType.BLOCK_UPDATE, rolledBack);
+    public ThimbleBlockUpdateEvent(String causingEntity, BlockPos pos, String dimension, long time, ThimbleSubType subType, boolean rolledBack) {
+        super(causingEntity, pos, dimension, time, ThimbleType.BLOCK_UPDATE, rolledBack);
         this.subType = subType;
     }
 
@@ -48,12 +48,13 @@ public class ThimbleBlockUpdateEvent extends ThimbleEvent {
     }
 
     public boolean rollback(World world) {
-        if (!this.rolledBack) {
+        if (this.rolledBack) {
+            return false;
+        } else {
+            System.out.println("rolling back!");
             world.setBlockState(this.pos, this.preState);
             this.rolledBack = true;
             return true;
-        } else {
-            return false;
         }
     }
 
@@ -143,7 +144,7 @@ public class ThimbleBlockUpdateEvent extends ThimbleEvent {
                 break;
         }
 
-        text.append("\n         ^(" + this.getPos().getX() + ", " + this.getPos().getY() + ", " + this.getPos().getZ() + ")").fillStyle(infoStyle);
+        text.append("\n         ^(" + this.getPos().getX() + ", " + this.getPos().getY() + ", " + this.getPos().getZ() + ")").fillStyle(Style.EMPTY.withFormatting(Formatting.GRAY));
 
         return text;
     }
@@ -176,10 +177,6 @@ public class ThimbleBlockUpdateEvent extends ThimbleEvent {
 
     public ThimbleSubType getSubType() {
         return this.subType;
-    }
-
-    public void setRolledBack(boolean rolledBack) {
-        this.rolledBack = rolledBack;
     }
 
     public enum ThimbleSubType {

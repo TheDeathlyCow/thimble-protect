@@ -10,8 +10,7 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.Vec3d;
 
-import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -28,8 +27,11 @@ public class ThimbleCommandHelper {
     // * Start Helper Methods * //
 
     protected static List<ThimbleEvent> lookupEvents(CommandContext<ServerCommandSource> context) {
-        numChecked = 0;
+        return lookupEvents(context, false);
+    }
 
+    protected static List<ThimbleEvent> lookupEvents(CommandContext<ServerCommandSource> context, boolean updateRollback) {
+        numChecked = 0;
         int distance = context.getArgument(distanceName, Integer.class);
         Vec3d pos = context.getSource().getPosition();
         String dimensionName = context.getSource().getWorld().getRegistryKey().getValue().toString();
@@ -44,7 +46,7 @@ public class ThimbleCommandHelper {
         for (int dx = chunkX[0]; dx < chunkX[1] + 1; dx++) {
             for (int dy = chunkY[0]; dy < chunkY[1] + 1; dy++) {
                 for (int dz = chunkZ[0]; dz < chunkZ[1] + 1; dz++) {
-                    foundEvents.addAll(getBlockUpdateEventsFromFile(pos, dx, dy, dz, distance, dimensionName));
+                    foundEvents.addAll(getBlockUpdateEventsFromFile(pos, dx, dy, dz, distance, dimensionName, null, ThimbleBlockUpdateEvent.ThimbleSubType.ALL, updateRollback));
                 }
             }
         }
@@ -52,11 +54,20 @@ public class ThimbleCommandHelper {
         return foundEvents;
     }
 
-    protected static List<ThimbleBlockUpdateEvent> getBlockUpdateEventsFromFile(Vec3d originPos, int chunkX, int chunkY, int chunkZ, int distance, String dimensionName) {
-        return getBlockUpdateEventsFromFile(originPos, chunkX, chunkY, chunkZ, distance, dimensionName, null, ThimbleBlockUpdateEvent.ThimbleSubType.ALL);
-    }
-
-    protected static List<ThimbleBlockUpdateEvent> getBlockUpdateEventsFromFile(Vec3d originPos, int chunkX, int chunkY, int chunkZ, int distance, String dimensionName, String playerName, ThimbleBlockUpdateEvent.ThimbleSubType subtype) {
+    /**
+     * Returns a list of ThimbleBlockUpdateEvents that match a set of parameters.
+     * @param originPos : Vec3d, the position at which the command was executed
+     * @param chunkX : int, the X coordinate of the subchunk of the events we are looking at
+     * @param chunkY : int, the Y coordinate of the subchunk of the events we are looking at
+     * @param chunkZ : int, the Z coordinate of the subchunk of the events we are looking at
+     * @param distance : int, the maximum distance which valid events can be from originPos
+     * @param dimensionName : String, the namedspaced name of the dimension we are looking in
+     * @param playerName : String, the name of the player or entity which valid events can be caused by (can be null)
+     * @param subtype : enum, the subtype of the ThimbleBlockUpdateEvent event we are looking for.
+     * @param updateRollback : boolean, whether or not we should update the rollback of the line. false means it will not be updated, true means it will be changed to it's opposite condition.
+     * @return a list of valid ThimbleBlockUpdateEvent
+     */
+    protected static List<ThimbleBlockUpdateEvent> getBlockUpdateEventsFromFile(Vec3d originPos, int chunkX, int chunkY, int chunkZ, int distance, String dimensionName, String playerName, ThimbleBlockUpdateEvent.ThimbleSubType subtype, boolean updateRollback) {
 
         List<ThimbleBlockUpdateEvent> events = new ArrayList<ThimbleBlockUpdateEvent>();
         String[] dimension = dimensionName.split(":");
@@ -70,27 +81,43 @@ public class ThimbleCommandHelper {
 
         filename += String.format("r%s,%s/c%s,%s,%s.thimble", chunkX / 32, chunkZ / 32, chunkX, chunkY, chunkZ);
 
-        Scanner inFile = null;
+        BufferedReader inFile;
+        StringBuffer writer;
         try {
-            inFile = new Scanner(new File(filename));
-        } catch (FileNotFoundException e) {
+            File file = new File(filename);
+            inFile = new BufferedReader(new FileReader(file));
+            writer = new StringBuffer();
+        } catch (IOException e) {
             return events;
         }
 
-        Gson gson = new GsonBuilder()
-                .registerTypeAdapter(ThimbleBlockUpdateEvent.class, new ThimbleBlockUpdateEventSerializer())
-                .create();
-        while (inFile.hasNextLine()) {
-            numChecked++;
-            String line = inFile.nextLine();
-            ThimbleBlockUpdateEvent currEvent = ThimbleBlockUpdateEventSerializer.GSON.fromJson(line, ThimbleBlockUpdateEvent.class);
+        String line;
+        try {
+            while ((line = inFile.readLine()) != null) {
+                numChecked++;
 
-            if (meetsLookupRequirements(currEvent, originPos, distance, playerName, subtype)) {
-                events.add(currEvent);
+                ThimbleBlockUpdateEvent currEvent = ThimbleBlockUpdateEventSerializer.GSON.fromJson(line, ThimbleBlockUpdateEvent.class);
+
+                if (meetsLookupRequirements(currEvent, originPos, distance, playerName, subtype)) {
+                    events.add(currEvent);
+                    if (updateRollback) {
+                        currEvent = ThimbleBlockUpdateEventSerializer.GSON.fromJson(line, ThimbleBlockUpdateEvent.class);
+                        currEvent.updateRollBack();
+                    }
+                }
+
+                line = ThimbleBlockUpdateEventSerializer.GSON.toJson(currEvent);
+                writer.append(line).append('\n');
             }
-        }
 
-        inFile.close();
+            inFile.close();
+
+            FileOutputStream fileOut = new FileOutputStream(filename);
+            fileOut.write(writer.toString().getBytes());
+            fileOut.close();
+        } catch(IOException e) {
+            e.printStackTrace();
+        }
 
         return events;
     }

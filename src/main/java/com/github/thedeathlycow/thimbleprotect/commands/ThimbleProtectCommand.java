@@ -101,7 +101,7 @@ public class ThimbleProtectCommand extends ThimbleCommandHelper {
 
     public static int rollback(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
 
-        List<ThimbleEvent> foundEvents = lookupEvents(context);
+        List<ThimbleEvent> foundEvents = lookupEvents(context, true);
 
         int rolledBackEvents = 0;
         ServerWorld world = context.getSource().getWorld();
