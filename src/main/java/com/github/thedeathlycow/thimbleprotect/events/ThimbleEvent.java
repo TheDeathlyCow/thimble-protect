@@ -1,6 +1,7 @@
 package com.github.thedeathlycow.thimbleprotect.events;
 
 import com.github.thedeathlycow.thimbleprotect.ThimbleEventLogger;
+import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -8,7 +9,7 @@ import java.io.IOException;
 
 public abstract class ThimbleEvent {
 
-    public boolean rolledBack;
+    protected boolean rolledBack;
     protected String causingEntity;
     protected String entityName;
     protected BlockPos pos;
@@ -79,6 +80,7 @@ public abstract class ThimbleEvent {
         return dimension;
     }
 
+    public abstract Text toText();
 
     // * ====== START GETTER METHODS ====== * //
 

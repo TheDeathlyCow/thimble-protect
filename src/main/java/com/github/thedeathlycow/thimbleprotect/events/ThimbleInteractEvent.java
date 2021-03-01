@@ -1,10 +1,8 @@
 package com.github.thedeathlycow.thimbleprotect.events;
 
 import net.minecraft.block.Block;
-import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraft.world.dimension.DimensionType;
 
 public class ThimbleInteractEvent extends ThimbleEvent {
 

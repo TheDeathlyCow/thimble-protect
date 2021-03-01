@@ -118,7 +118,10 @@ public class ThimbleBlockUpdateEventSerializer implements JsonSerializer<Thimble
         JsonObject propertiesObject = stateObject.get("properties").getAsJsonObject();
         BlockState state = Registry.BLOCK.get(new Identifier(blockID)).getDefaultState();
 
-        if (state == null || state == Blocks.AIR.getDefaultState()) {
+        if (state == Blocks.AIR.getDefaultState() || state == null) {
+            return Blocks.AIR.getDefaultState();
+        }
+        if (propertiesObject == null) {
             return state;
         }
 

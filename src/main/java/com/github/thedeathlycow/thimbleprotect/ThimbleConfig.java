@@ -1,13 +1,5 @@
 package com.github.thedeathlycow.thimbleprotect;
 
-import com.google.gson.Gson;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-
 public class ThimbleConfig {
 
     public final boolean blockBreak;
@@ -16,6 +8,7 @@ public class ThimbleConfig {
 
     /**
      * Loads a new Thimble Config with custom parameters.
+     *
      * @param logBlockBreak
      * @param logBlockPlace
      * @param logExplosion

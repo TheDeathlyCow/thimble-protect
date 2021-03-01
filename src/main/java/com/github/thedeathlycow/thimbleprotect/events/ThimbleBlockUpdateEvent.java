@@ -1,16 +1,8 @@
 package com.github.thedeathlycow.thimbleprotect.events;
 
 import com.github.thedeathlycow.thimbleprotect.ThimbleProtect;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.block.BlockState;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Style;
-import net.minecraft.text.TextColor;
+import net.minecraft.text.*;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.Registry;
@@ -19,29 +11,11 @@ import net.minecraft.world.World;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.time.Instant;
 
 public class ThimbleBlockUpdateEvent extends ThimbleEvent {
 
-    public static final Codec<ThimbleBlockUpdateEvent> CODEC = RecordCodecBuilder.create(
-            instance -> instance.group(
-                    Codec.STRING.fieldOf("causingEntity").forGetter(ThimbleEvent::getCausingEntity),
-                    BlockPos.CODEC.fieldOf("position").forGetter(ThimbleEvent::getPos),
-                    Codec.LONG.fieldOf("time").forGetter(ThimbleEvent::getTime),
-                    Codec.STRING.fieldOf("dimension").forGetter(ThimbleEvent::getDimension),
-                    Codec.BOOL.fieldOf("rolledBack").forGetter(ThimbleEvent::isRolledBack),
-                    BlockState.CODEC.fieldOf("preState").forGetter(ThimbleBlockUpdateEvent::getPreState),
-                    BlockState.CODEC.fieldOf("postState").forGetter(ThimbleBlockUpdateEvent::getPostState),
-                    Codec.STRING.fieldOf("subType").forGetter((ThimbleBlockUpdateEvent event) -> event.getSubType().toString())
-            ).apply(instance, (causingEntity, blockPos, time, dimension, rolledBack, preState, postState, subType) -> {
-                ThimbleBlockUpdateEvent newEvent = new ThimbleBlockUpdateEvent(causingEntity, blockPos, dimension, time, ThimbleSubType.valueOf(subType));
-                newEvent.setPreState(preState);
-                newEvent.setPostState(postState);
-                return newEvent;
-            })
-    );
-
-
-    public static final String NULL_ENTITY_STRING = "#entity";
+    public static final String NULL_ENTITY_STRING = "Null";
     public static final String BASE_FILE_PATH = "thimble/events/";
     protected BlockState preState;
     protected BlockState postState;
@@ -96,12 +70,6 @@ public class ThimbleBlockUpdateEvent extends ThimbleEvent {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-
-//            GsonBuilder gsonBuilder = new GsonBuilder()
-//                    .registerTypeHierarchyAdapter(ThimbleBlockUpdateEvent.class, new ThimbleBlockUpdateEventSerializer())
-//                    .disableHtmlEscaping();
-//            Gson eventGson = gsonBuilder.create();
-
             serialised = ThimbleBlockUpdateEventSerializer.GSON.toJson(this);
 
             try {
@@ -112,7 +80,6 @@ public class ThimbleBlockUpdateEvent extends ThimbleEvent {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
         }
     }
 
@@ -143,42 +110,42 @@ public class ThimbleBlockUpdateEvent extends ThimbleEvent {
                 + " " + this.getSubType();
     }
 
-    public MutableText toText() {
-        return this.toText(this.causingEntity);
+    private String getTimeAgo(long currentTime) {
+        return currentTime - this.getTime() + "s";
     }
 
-    public MutableText toText(String name) {
-
+    public Text toText() {
         Style nounStyle = Style.EMPTY.withFormatting(Formatting.DARK_PURPLE);
         Style verbStyle = Style.EMPTY.withFormatting(Formatting.WHITE);
-        ;
-        Style posStyle = Style.EMPTY.withFormatting(Formatting.GRAY);
+        Style infoStyle = Style.EMPTY.withFormatting(Formatting.GRAY);
 
         if (this.rolledBack) {
             nounStyle = nounStyle.withFormatting(Formatting.STRIKETHROUGH);
             verbStyle = verbStyle.withFormatting(Formatting.STRIKETHROUGH);
-            posStyle = posStyle.withFormatting(Formatting.STRIKETHROUGH);
+            infoStyle = infoStyle.withFormatting(Formatting.STRIKETHROUGH);
         }
 
-        MutableText neat = new LiteralText(this.getPos().getX() + ", " + this.getPos().getY() + ", " + this.getPos().getZ() + ": ").fillStyle(posStyle);
+        MutableText text = new LiteralText(getTimeAgo(Instant.now().getEpochSecond()) + " ago -- ").fillStyle(infoStyle);
 
-        neat.append(new LiteralText(name).fillStyle(nounStyle)).append(" ");
+        text.append(new LiteralText(this.causingEntity).fillStyle(nounStyle)).append(" ");
         switch (this.getSubType()) {
             case BLOCK_BREAK:
-                neat.append(new LiteralText("broke ").fillStyle(verbStyle)).append(new LiteralText(Registry.BLOCK.getId(this.getPreState().getBlock()).toString()).fillStyle(nounStyle));
+                text.append(new LiteralText("broke ").fillStyle(verbStyle)).append(new LiteralText(Registry.BLOCK.getId(this.getPreState().getBlock()).toString()).fillStyle(nounStyle));
                 break;
             case BLOCK_PLACE:
-                neat.append(new LiteralText("placed ").fillStyle(verbStyle)).append(new LiteralText(Registry.BLOCK.getId(this.getPostState().getBlock()).toString()).fillStyle(nounStyle));
+                text.append(new LiteralText("placed ").fillStyle(verbStyle)).append(new LiteralText(Registry.BLOCK.getId(this.getPostState().getBlock()).toString()).fillStyle(nounStyle));
                 break;
             case EXPLOSION:
-                neat.append(new LiteralText("blew up ").fillStyle(verbStyle)).append(new LiteralText(Registry.BLOCK.getId(this.getPostState().getBlock()).toString()).fillStyle(nounStyle));
+                text.append(new LiteralText("blew up ").fillStyle(verbStyle)).append(new LiteralText(Registry.BLOCK.getId(this.getPreState().getBlock()).toString()).fillStyle(nounStyle));
                 break;
             default:
-                neat.append(new LiteralText("changed ").fillStyle(verbStyle)).append(new LiteralText(Registry.BLOCK.getId(this.getPostState().getBlock()).toString()).fillStyle(Style.EMPTY.withColor(TextColor.parse("light_purple"))));
+                text.append(new LiteralText("changed ").fillStyle(verbStyle)).append(new LiteralText(Registry.BLOCK.getId(this.getPostState().getBlock()).toString()).fillStyle(Style.EMPTY.withColor(TextColor.parse("light_purple"))));
                 break;
         }
 
-        return neat;
+        text.append("\n         ^(" + this.getPos().getX() + ", " + this.getPos().getY() + ", " + this.getPos().getZ() + ")").fillStyle(infoStyle);
+
+        return text;
     }
 
     /**

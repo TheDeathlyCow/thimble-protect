@@ -21,6 +21,7 @@ import net.minecraft.text.LiteralText;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
 import net.minecraft.text.TextColor;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
@@ -51,10 +52,10 @@ public class ThimbleProtectCommand {
                             .then(argument(distanceName, IntegerArgumentType.integer(1, 100))
                                     .executes(ThimbleProtectCommand::lookup)))
                     .then(literal("rollback")
-                            .then(argument(distanceName, IntegerArgumentType.integer(1))
+                            .then(argument(distanceName, IntegerArgumentType.integer(1, 100))
                                     .executes(ThimbleProtectCommand::rollback)))
                     .then(literal("restore")
-                            .then(argument(distanceName, IntegerArgumentType.integer(1))
+                            .then(argument(distanceName, IntegerArgumentType.integer(1, 100))
                                     .executes(ThimbleProtectCommand::restore)))
                     .then(literal("clearEvents")
                             .executes(ThimbleProtectCommand::clearEvents))
@@ -80,53 +81,61 @@ public class ThimbleProtectCommand {
         return 1;
     }
 
+    /**
+     * Looks up ThimbleEvents and sends a message to the player with all the events found.
+     *
+     * TODO: Split those events up into separate pages.
+     * @param context Command context.
+     * @return 1
+     * @throws CommandSyntaxException
+     */
     public static int lookup(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
 
-        List<ThimbleBlockUpdateEvent> foundBlockUpdateEvents = lookupBlockUpdateEvents(context);
+        List<ThimbleEvent> foundEvents = lookupEvents(context);
 
+        // Send header to player
         MutableText header = new LiteralText(" --- ").fillStyle(Style.EMPTY.withColor(TextColor.parse("aqua")))
                 .append(new LiteralText("ThimbleProtect Lookup").fillStyle(Style.EMPTY.withColor(TextColor.parse("light_purple"))))
                 .append(new LiteralText(" --- ").fillStyle(Style.EMPTY.withColor(TextColor.parse("aqua"))));
         context.getSource().sendFeedback(header, false);
 
-        MutableText message = new LiteralText(" ");
-        for (ThimbleBlockUpdateEvent event : foundBlockUpdateEvents) {
-
-            String name = event.getCausingEntity();
-            Entity causingEntity = context.getSource().getWorld().getEntity(UUID.fromString(name));
-            if (causingEntity != null) {
-                name = causingEntity.getName().asString();
-            }
-
-            message.append(event.toText(name)).append("\n");
+        // Convert event results into a message.
+        MutableText message = new LiteralText("");
+        for (ThimbleEvent event : foundEvents) {
+            message.append(event.toText()).append("\n");
         }
+        // Tell the player how many results are in the list.
+        message.append("Found ").append("" + foundEvents.size()).append(" event(s)...");
 
-        message.append("Found ").append("" + foundBlockUpdateEvents.size()).append(" event(s)...");
-
+        // Send message to player.
         context.getSource().sendFeedback(message, false);
-        context.getSource().sendFeedback(new LiteralText("Checked " + numChecked + " events..."), false);
+
+        // Tell the player (and operators) how many events were checked.
+        context.getSource().sendFeedback(new LiteralText("[ThimbleProtect] Checked " + numChecked + " events..."), true);
         return 1;
     }
 
+
     public static int rollback(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
 
-        if (EventList.isEmpty()) {
-            context.getSource().sendFeedback(new LiteralText("No events to rollback!"), false);
-            return -1;
-        }
+        List<ThimbleEvent> foundEvents = lookupEvents(context);
 
-        World world = context.getSource().getWorld();
-
-        int restoreCount = context.getArgument("Rollback Count", Integer.class);
-        int restored = 0;
-        for (int i = EventList.size() - 1; i >= 0 && restored < restoreCount; i--) {
-            ThimbleEvent currentEvent = EventList.get(i);
-            if (currentEvent.rollback(world)) {
-                restored++;
+        int rolledBackEvents = 0;
+        ServerWorld world = context.getSource().getWorld();
+        for (ThimbleEvent event : foundEvents) {
+            if (event.rollback(world)) {
+                rolledBackEvents ++;
             }
         }
 
-        context.getSource().sendFeedback(new LiteralText("Rolled back last " + restored + " event(s)!"), false);
+        MutableText message = new LiteralText("[ThimbleProtect] Rolledback ")
+                .fillStyle(Style.EMPTY.withFormatting(Formatting.DARK_PURPLE));
+        message.append(new LiteralText("" + rolledBackEvents)
+                .fillStyle(Style.EMPTY.withFormatting(Formatting.LIGHT_PURPLE)));
+        message.append(new LiteralText(" event(s).")
+                .fillStyle(Style.EMPTY.withFormatting(Formatting.DARK_PURPLE)));
+
+        context.getSource().sendFeedback(message, true);
         return 1;
     }
 
@@ -159,7 +168,7 @@ public class ThimbleProtectCommand {
 
     // * Start Helper Methods * //
 
-    private static List<ThimbleBlockUpdateEvent> lookupBlockUpdateEvents(CommandContext<ServerCommandSource> context) {
+    private static List<ThimbleEvent> lookupEvents(CommandContext<ServerCommandSource> context) {
         numChecked = 0;
 
         int distance = context.getArgument(distanceName, Integer.class);
@@ -171,7 +180,7 @@ public class ThimbleProtectCommand {
 
         ServerWorld world = context.getSource().getWorld();
 
-        List<ThimbleBlockUpdateEvent> foundEvents = new ArrayList<ThimbleBlockUpdateEvent>();
+        List<ThimbleEvent> foundEvents = new ArrayList<ThimbleEvent>();
 
         for (int dx = chunkX[0]; dx < chunkX[1] + 1; dx++) {
             for (int dy = chunkY[0]; dy < chunkY[1] + 1; dy++) {
@@ -199,7 +208,6 @@ public class ThimbleProtectCommand {
         } catch (IndexOutOfBoundsException e) {
             filename = "thimble/events/" + dimensionName + "/";
         }
-
 
         filename += String.format("r%s,%s/c%s,%s,%s.thimble", chunkX / 32, chunkZ / 32, chunkX, chunkY, chunkZ);
 

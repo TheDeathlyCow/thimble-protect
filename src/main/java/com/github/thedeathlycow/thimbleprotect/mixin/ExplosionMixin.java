@@ -6,6 +6,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.explosion.Explosion;
@@ -47,11 +48,12 @@ public abstract class ExplosionMixin {
                 BlockState currState = this.world.getBlockState(currPos);
                 String dimensionName = world.getRegistryKey().getValue().toString();
                 if (!currState.isAir()) {
-                    String causingEntity = ThimbleBlockUpdateEvent.NULL_ENTITY_STRING;
-                    if (this.getCausingEntity() != null) {
-                        causingEntity = this.getCausingEntity().getUuidAsString();
+                    String causingEntityName = ThimbleBlockUpdateEvent.NULL_ENTITY_STRING;
+                    LivingEntity causingEntity = this.getCausingEntity();
+                    if (causingEntity != null) {
+                        causingEntityName = causingEntity.getDisplayName().getString();
                     }
-                    ThimbleBlockUpdateEvent event = new ThimbleBlockUpdateEvent(causingEntity, currPos, dimensionName, Instant.now().getEpochSecond(), ThimbleBlockUpdateEvent.ThimbleSubType.EXPLOSION);
+                    ThimbleBlockUpdateEvent event = new ThimbleBlockUpdateEvent(causingEntityName, currPos, dimensionName, Instant.now().getEpochSecond(), ThimbleBlockUpdateEvent.ThimbleSubType.EXPLOSION);
                     event.setPreState(currState);
                     event.setPostState(Blocks.AIR.getDefaultState());
                     event.addToLog();

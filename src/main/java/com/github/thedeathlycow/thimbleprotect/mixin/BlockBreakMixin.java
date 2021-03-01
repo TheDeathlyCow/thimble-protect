@@ -22,7 +22,7 @@ public abstract class BlockBreakMixin {
     public void onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player, CallbackInfo ci) {
         if (player != null) {
             String dimensionName = world.getRegistryKey().getValue().toString();
-            ThimbleBlockUpdateEvent event = new ThimbleBlockUpdateEvent(player.getUuidAsString(), pos, dimensionName, Instant.now().getEpochSecond(), ThimbleBlockUpdateEvent.ThimbleSubType.BLOCK_BREAK);
+            ThimbleBlockUpdateEvent event = new ThimbleBlockUpdateEvent(player.getDisplayName().asString(), pos, dimensionName, Instant.now().getEpochSecond(), ThimbleBlockUpdateEvent.ThimbleSubType.BLOCK_BREAK);
             event.setPreState(state);
             event.setPostState(Blocks.AIR.getDefaultState());
 
